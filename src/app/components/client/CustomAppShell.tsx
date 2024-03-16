@@ -35,7 +35,7 @@ export default function CustomAppShell({ children }: CustomAppShellProps) {
           ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-      <AppShell.Aside p="md">Aside</AppShell.Aside>
+      {/* <AppShell.Aside p="md">Aside</AppShell.Aside> */}
       <AppShell.Footer p="md">Footer</AppShell.Footer>
     </AppShell>
   );
