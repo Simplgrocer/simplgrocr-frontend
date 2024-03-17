@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import "@mantine/core/styles.css";
-import { ColorSchemeScript, MantineProvider } from "@mantine/core";
-import CustomAppShell from "./components/client/CustomAppShell";
+import "bootstrap/dist/css/bootstrap.css";
 
 const roboto = Roboto({
   weight: ["100", "300", "400", "500", "700", "900"],
@@ -22,14 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <ColorSchemeScript />
-      </head>
-      <body className={roboto.className}>
-        <MantineProvider>
-          <CustomAppShell>{children}</CustomAppShell>
-        </MantineProvider>
-      </body>
+      <body className={roboto.className}>{children}</body>
     </html>
   );
 }
