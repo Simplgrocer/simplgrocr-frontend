@@ -25,9 +25,13 @@
               "src/assets"
             ],
             "styles": [
+              "node_modules/boosted/dist/css/orange-helvetica.min.css",
+              "node_modules/boosted/dist/css/boosted.min.css",
               "src/styles.css"
             ],
-            "scripts": [],
+            "scripts": [
+              "node_modules/boosted/dist/js/boosted.bundle.min.js"
+            ],
             "server": "src/main.server.ts",
             "prerender": true,
             "ssr": {
@@ -98,6 +102,6 @@
     }
   },
   "cli": {
-    "analytics": "e192ef3e-7c10-4c9e-bbf1-00ddc7f2d14b"
+    "analytics": "c95dad45-f051-45a3-a911-07794fd4a8c1"
   }
 }

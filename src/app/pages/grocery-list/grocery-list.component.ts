@@ -8,17 +8,13 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { MdbFormsModule } from 'mdb-angular-ui-kit/forms';
-import { MdbValidationModule } from 'mdb-angular-ui-kit/validation';
 
 @Component({
   selector: 'app-grocery-list',
   standalone: true,
   imports: [
     CommonModule,
-    MdbFormsModule,
     ReactiveFormsModule,
-    MdbValidationModule,
   ],
   templateUrl: './grocery-list.component.html',
   styleUrl: './grocery-list.component.css',
