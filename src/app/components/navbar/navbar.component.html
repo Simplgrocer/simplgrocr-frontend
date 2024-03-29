@@ -1,26 +1,45 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="#">Simplgrocr</a>
-    <button
-      class="navbar-toggler"
-      type="button"
-      (click)="basicNav.toggle()"
-      aria-expanded="false"
-      aria-label="Toggle navigation"
-    >
-      <i class="fas fa-bars"></i>
-    </button>
-    <div
-      class="collapse navbar-collapse"
-      id="navbarNav"
-      mdbCollapse
-      #basicNav="mdbCollapse"
-    >
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link active" aria-current="page" href="#">Home</a>
-        </li>
-      </ul>
+<header>
+  <nav
+    class="navbar navbar-expand-lg sticky-top"
+    aria-label="Global navigation - Standard example"
+  >
+    <div class="container-xxl">
+      <!-- <div class="navbar-brand me-auto me-lg-4">
+        <a class="stretched-link" href="#">
+          <img
+            src="/docs/5.3/assets/brand/orange-logo.svg"
+            width="50"
+            height="50"
+            alt="Boosted - Back to Home"
+            loading="lazy"
+          />
+        </a>
+      </div> -->
+
+      <button
+        class="navbar-toggler collapsed"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target=".global-header-1"
+        aria-controls="global-header-1.1 global-header-1.2"
+        aria-expanded="false"
+        aria-label="Toggle navigation"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div
+        id="global-header-1.1"
+        class="navbar-collapse collapse me-lg-auto global-header-1"
+      >
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" href="#" aria-current="page"
+              >Create grocery list</a
+            >
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
-</nav>
+  </nav>
+</header>

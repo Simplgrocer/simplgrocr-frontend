@@ -11,6 +11,6 @@ export const routes: Routes = [
   {
     path: 'grocery-list',
     component: GroceryListComponent,
-    title: 'Grocery list'
-  }
+    title: 'Grocery list',
+  },
 ];
