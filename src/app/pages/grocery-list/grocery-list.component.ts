@@ -27,6 +27,7 @@ export class GroceryListComponent implements OnInit {
           name: new FormControl('', [Validators.required]),
           quantity: new FormControl('', [Validators.required]),
           rate: new FormControl('', [Validators.required]),
+          price: new FormControl('', [Validators.required]),
         }),
       ]),
     });
@@ -43,6 +44,7 @@ export class GroceryListComponent implements OnInit {
           name: new FormControl('', [Validators.required]),
           quantity: new FormControl('', [Validators.required]),
           rate: new FormControl('', [Validators.required]),
+          price: new FormControl('', [Validators.required]),
         }),
       ])
     );
