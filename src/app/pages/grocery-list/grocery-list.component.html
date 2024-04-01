@@ -1,3 +1,9 @@
+<div class="price-div sticky-top">
+  <div class="col">
+    <label class="form-label">Total</label>
+  </div>
+</div>
+
 <form [formGroup]="groceryListForm">
   <div class="mb-3">
     <label class="form-label">Name</label>
@@ -15,12 +21,33 @@
       </div>
 
       <div class="mb-3">
-        <label class="form-label">Measurement unit </label>
+        <label class="form-label">Quantity Measurement unit </label>
         <select class="form-select" aria-label="Default select example">
           <option selected>Select</option>
           <option value="1">Unit</option>
-          <option value="2">Mass</option>
+          <option value="2">Kilogram</option>
+          <option value="3">Gram</option>
         </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Quantity</label>
+        <input type="number" class="form-control" formControlName="quantity" />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Rate Measurement unit </label>
+        <select class="form-select" aria-label="Default select example">
+          <option selected>Select</option>
+          <option value="1">Unit</option>
+          <option value="2">Kilogram</option>
+          <option value="3">Gram</option>
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Rate</label>
+        <input type="number" class="form-control" formControlName="rate" />
       </div>
 
       <div class="text-end">
