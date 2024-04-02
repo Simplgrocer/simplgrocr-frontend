@@ -9,6 +9,11 @@ import {
   Validators,
 } from '@angular/forms';
 
+interface MeasurementUnit {
+  id: number,
+  unit: 'Unit' | 'Mass'
+}
+
 @Component({
   selector: 'app-grocery-list',
   standalone: true,
