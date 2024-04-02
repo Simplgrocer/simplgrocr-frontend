@@ -17,10 +17,7 @@ interface MeasurementUnit {
 @Component({
   selector: 'app-grocery-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './grocery-list.component.html',
   styleUrl: './grocery-list.component.css',
 })
@@ -31,7 +28,12 @@ export class GroceryListComponent implements OnInit {
     this.groceryListForm = new FormGroup({
       name: new FormControl('', [Validators.required]),
       items: new FormArray([
-        new FormGroup({ name: new FormControl('', [Validators.required]) }),
+        new FormGroup({
+          name: new FormControl('', [Validators.required]),
+          quantity: new FormControl('', [Validators.required]),
+          rate: new FormControl('', [Validators.required]),
+          price: new FormControl('', [Validators.required]),
+        }),
       ]),
     });
   }
@@ -43,7 +45,12 @@ export class GroceryListComponent implements OnInit {
   addItem(): void {
     (this.groceryListForm.get('items') as FormArray).push(
       new FormArray([
-        new FormGroup({ name: new FormControl('', [Validators.required]) }),
+        new FormGroup({
+          name: new FormControl('', [Validators.required]),
+          quantity: new FormControl('', [Validators.required]),
+          rate: new FormControl('', [Validators.required]),
+          price: new FormControl('', [Validators.required]),
+        }),
       ])
     );
   }
