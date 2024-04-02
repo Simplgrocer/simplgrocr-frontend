@@ -7,7 +7,7 @@
   </div>
 </div>
 
-<form [formGroup]="groceryListForm">
+<form [formGroup]="groceryListForm" (ngSubmit)="onSubmit()">
   <div class="mb-3">
     <label class="form-label">Name</label>
     <input type="text" class="form-control" formControlName="name" />
@@ -25,11 +25,12 @@
 
       <div class="mb-3">
         <label class="form-label">Quantity Measurement unit </label>
-        <select class="form-select" aria-label="Default select example">
-          <option selected>Select</option>
-          <option value="1">Unit</option>
-          <option value="2">Kilogram</option>
-          <option value="3">Gram</option>
+        <select class="form-select" formControlName="quantityMeasurementUnit">
+          @for (measurementUnit of measurementUnits; track $index) {
+          <option [value]=measurementUnit.id>
+            {{ measurementUnit.value }}
+          </option>
+          }
         </select>
       </div>
 
@@ -40,11 +41,12 @@
 
       <div class="mb-3">
         <label class="form-label">Rate Measurement unit </label>
-        <select class="form-select" aria-label="Default select example">
-          <option selected>Select</option>
-          <option value="1">Unit</option>
-          <option value="2">Kilogram</option>
-          <option value="3">Gram</option>
+        <select class="form-select" formControlName="rateMeasurementUnit">
+          @for (measurementUnit of measurementUnits; track $index) {
+          <option [value]=measurementUnit.id>
+            {{ measurementUnit.value }}
+          </option>
+          }
         </select>
       </div>
 
@@ -62,7 +64,7 @@
         </div>
       </div>
 
-      <br>
+      <br />
 
       <div class="text-end">
         <button
@@ -85,13 +87,16 @@
     </button>
   </div>
 
-  <br>
+  <br />
 
   <div class="mb-3">
-    <label class="form-label"
-      >Generate with AI</label
-    >
-    <div contenteditable="true" aria-multiline="true" class="form-control" placeholder="Required example textarea"></div>
+    <label class="form-label">Generate with AI</label>
+    <div
+      contenteditable="true"
+      aria-multiline="true"
+      class="form-control"
+      placeholder="Required example textarea"
+    ></div>
   </div>
 
   <div class="text-center">

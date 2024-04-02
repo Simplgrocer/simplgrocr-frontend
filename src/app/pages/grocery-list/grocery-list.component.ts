@@ -10,8 +10,8 @@ import {
 } from '@angular/forms';
 
 interface MeasurementUnit {
-  id: number,
-  unit: 'Unit' | 'Mass'
+  id: number;
+  value: 'Unit' | 'Kilogram' | 'Gram';
 }
 
 @Component({
@@ -22,6 +22,12 @@ interface MeasurementUnit {
   styleUrl: './grocery-list.component.css',
 })
 export class GroceryListComponent implements OnInit {
+  measurementUnits: MeasurementUnit[] = [
+    { id: 1, value: 'Unit' },
+    { id: 2, value: 'Kilogram' },
+    { id: 3, value: 'Gram' },
+  ];
+
   groceryListForm!: FormGroup;
 
   ngOnInit(): void {
@@ -30,7 +36,9 @@ export class GroceryListComponent implements OnInit {
       items: new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
+          quantityMeasurementUnit: new FormControl('', [Validators.required]),
           quantity: new FormControl('', [Validators.required]),
+          rateMeasurementUnit: new FormControl('', [Validators.required]),
           rate: new FormControl('', [Validators.required]),
           price: new FormControl('', [Validators.required]),
         }),
@@ -47,7 +55,9 @@ export class GroceryListComponent implements OnInit {
       new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
+          quantityMeasurementUnit: new FormControl('', [Validators.required]),
           quantity: new FormControl('', [Validators.required]),
+          rateMeasurementUnit: new FormControl('', [Validators.required]),
           rate: new FormControl('', [Validators.required]),
           price: new FormControl('', [Validators.required]),
         }),
@@ -57,5 +67,9 @@ export class GroceryListComponent implements OnInit {
 
   deleteItem(index: number): void {
     (this.groceryListForm.get('items') as FormArray).removeAt(index);
+  }
+
+  onSubmit(): void {
+    console.log(this.groceryListForm);
   }
 }
