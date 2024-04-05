@@ -8,6 +8,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { GroceryListService } from '../../services/grocery-list.service';
 
 interface MeasurementUnit {
   id: number;
@@ -29,6 +30,12 @@ export class GroceryListComponent implements OnInit {
   ];
 
   groceryListForm!: FormGroup;
+
+  groceryListService: GroceryListService;
+
+  constructor(groceryListService: GroceryListService) {
+    this.groceryListService = groceryListService;
+  }
 
   ngOnInit(): void {
     this.groceryListForm = new FormGroup({
@@ -67,6 +74,14 @@ export class GroceryListComponent implements OnInit {
 
   deleteItem(index: number): void {
     (this.groceryListForm.get('items') as FormArray).removeAt(index);
+  }
+
+  updateItemPrice(index: number): void {
+    (
+      (this.groceryListForm.controls['items'] as FormArray).controls[
+        index
+      ] as FormGroup
+    ).controls['price'].setValue(200);
   }
 
   onSubmit(): void {

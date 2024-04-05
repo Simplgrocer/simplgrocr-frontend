@@ -25,7 +25,11 @@
 
       <div class="mb-3">
         <label class="form-label">Quantity Measurement unit </label>
-        <select class="form-select" formControlName="quantityMeasurementUnit">
+        <select
+          class="form-select"
+          formControlName="quantityMeasurementUnit"
+          (change)="updateItemPrice(index)"
+        >
           @for (measurementUnit of measurementUnits; track $index) {
           <option [value]="measurementUnit.id">
             {{ measurementUnit.value }}
@@ -36,12 +40,21 @@
 
       <div class="mb-3">
         <label class="form-label">Quantity</label>
-        <input type="number" class="form-control" formControlName="quantity" />
+        <input
+          type="number"
+          class="form-control"
+          formControlName="quantity"
+          (keyup)="updateItemPrice(index)"
+        />
       </div>
 
       <div class="mb-3">
         <label class="form-label">Rate Measurement unit </label>
-        <select class="form-select" formControlName="rateMeasurementUnit">
+        <select
+          class="form-select"
+          formControlName="rateMeasurementUnit"
+          (change)="updateItemPrice(index)"
+        >
           @for (measurementUnit of measurementUnits; track $index) {
           <option [value]="measurementUnit.id">
             {{ measurementUnit.value }}
@@ -52,7 +65,12 @@
 
       <div class="mb-3">
         <label class="form-label">Rate</label>
-        <input type="number" class="form-control" formControlName="rate" />
+        <input
+          type="number"
+          class="form-control"
+          formControlName="rate"
+          (keyup)="updateItemPrice(index)"
+        />
       </div>
 
       <div class="row">
