@@ -37,10 +37,10 @@ export class GroceryListComponent implements OnInit {
         new FormGroup({
           name: new FormControl('', [Validators.required]),
           quantityMeasurementUnit: new FormControl('', [Validators.required]),
-          quantity: new FormControl('', [Validators.required]),
+          quantity: new FormControl(0, [Validators.required]),
           rateMeasurementUnit: new FormControl('', [Validators.required]),
-          rate: new FormControl('', [Validators.required]),
-          price: new FormControl('', [Validators.required]),
+          rate: new FormControl(0, [Validators.required]),
+          price: new FormControl(0, [Validators.required]),
         }),
       ]),
     });
@@ -56,10 +56,10 @@ export class GroceryListComponent implements OnInit {
         new FormGroup({
           name: new FormControl('', [Validators.required]),
           quantityMeasurementUnit: new FormControl('', [Validators.required]),
-          quantity: new FormControl('', [Validators.required]),
+          quantity: new FormControl(0, [Validators.required]),
           rateMeasurementUnit: new FormControl('', [Validators.required]),
-          rate: new FormControl('', [Validators.required]),
-          price: new FormControl('', [Validators.required]),
+          rate: new FormControl(0, [Validators.required]),
+          price: new FormControl(0, [Validators.required]),
         }),
       ])
     );

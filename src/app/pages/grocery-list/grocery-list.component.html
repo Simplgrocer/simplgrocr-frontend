@@ -27,7 +27,7 @@
         <label class="form-label">Quantity Measurement unit </label>
         <select class="form-select" formControlName="quantityMeasurementUnit">
           @for (measurementUnit of measurementUnits; track $index) {
-          <option [value]=measurementUnit.id>
+          <option [value]="measurementUnit.id">
             {{ measurementUnit.value }}
           </option>
           }
@@ -43,7 +43,7 @@
         <label class="form-label">Rate Measurement unit </label>
         <select class="form-select" formControlName="rateMeasurementUnit">
           @for (measurementUnit of measurementUnits; track $index) {
-          <option [value]=measurementUnit.id>
+          <option [value]="measurementUnit.id">
             {{ measurementUnit.value }}
           </option>
           }
@@ -60,7 +60,7 @@
           <label class="form-label">Total</label>
         </div>
         <div class="col text-end">
-          <label class="form-label">Rs. 1500</label>
+          <label class="form-label">{{ item.get("price")?.value }}</label>
         </div>
       </div>
 
