@@ -81,21 +81,29 @@ export class GroceryListComponent implements OnInit {
           index
         ] as FormGroup
       ).controls['rateMeasurementQuantity'].value,
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['rateMeasurementUnit'].value,
+      this.measurementUnits.find(
+        (obj) =>
+          obj.id ===
+          (
+            (this.groceryListForm.controls['items'] as FormArray).controls[
+              index
+            ] as FormGroup
+          ).controls['rateMeasurementUnit'].value
+      )!.value,
       (
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['rate'].value,
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['quantityMeasurementUnit'].value,
+      this.measurementUnits.find(
+        (obj) =>
+          obj.id ===
+          (
+            (this.groceryListForm.controls['items'] as FormArray).controls[
+              index
+            ] as FormGroup
+          ).controls['quantityMeasurementUnit'].value
+      )!.value,
       (
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
