@@ -31,11 +31,7 @@ export class GroceryListComponent implements OnInit {
 
   groceryListForm!: FormGroup;
 
-  groceryListService: GroceryListService;
-
-  constructor(groceryListService: GroceryListService) {
-    this.groceryListService = groceryListService;
-  }
+  constructor(private groceryListService: GroceryListService) {}
 
   ngOnInit(): void {
     this.groceryListForm = new FormGroup({
@@ -43,9 +39,9 @@ export class GroceryListComponent implements OnInit {
       items: new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
-          quantityMeasurementUnit: new FormControl('', [Validators.required]),
+          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
           quantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl('', [Validators.required]),
+          rateMeasurementUnit: new FormControl(1, [Validators.required]),
           rate: new FormControl(0, [Validators.required]),
           price: new FormControl(0, [Validators.required]),
         }),
@@ -62,9 +58,9 @@ export class GroceryListComponent implements OnInit {
       new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
-          quantityMeasurementUnit: new FormControl('', [Validators.required]),
+          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
           quantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl('', [Validators.required]),
+          rateMeasurementUnit: new FormControl(1, [Validators.required]),
           rate: new FormControl(0, [Validators.required]),
           price: new FormControl(0, [Validators.required]),
         }),
@@ -77,11 +73,34 @@ export class GroceryListComponent implements OnInit {
   }
 
   updateItemPrice(index: number): void {
+    const itemPrice = this.groceryListService.getItemPrice(
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['quantityMeasurementUnit'].value,
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['quantity'].value,
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['rateMeasurementUnit'].value,
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['rate'].value
+    );
+
     (
       (this.groceryListForm.controls['items'] as FormArray).controls[
         index
       ] as FormGroup
-    ).controls['price'].setValue(200);
+    ).controls['price'].setValue(itemPrice);
   }
 
   onSubmit(): void {
