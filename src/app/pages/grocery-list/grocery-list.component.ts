@@ -56,17 +56,15 @@ export class GroceryListComponent implements OnInit {
 
   addItem(): void {
     (this.groceryListForm.get('items') as FormArray).push(
-      new FormArray([
-        new FormGroup({
-          name: new FormControl('', [Validators.required]),
-          rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl(1, [Validators.required]),
-          rate: new FormControl(0, [Validators.required]),
-          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
-          quantity: new FormControl(0, [Validators.required]),
-          price: new FormControl(0, [Validators.required]),
-        }),
-      ])
+      new FormGroup({
+        name: new FormControl('', [Validators.required]),
+        rateMeasurementQuantity: new FormControl(0, [Validators.required]),
+        rateMeasurementUnit: new FormControl(1, [Validators.required]),
+        rate: new FormControl(0, [Validators.required]),
+        quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+        quantity: new FormControl(0, [Validators.required]),
+        price: new FormControl(0, [Validators.required]),
+      })
     );
   }
 
