@@ -24,6 +24,41 @@
       </div>
 
       <div class="mb-3">
+        <label class="form-label">Rate Measurement quantity</label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="rateMeasurementQuantity"
+          (keyup)="updateItemPrice(index)"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Rate Measurement unit</label>
+        <select
+          class="form-select"
+          formControlName="rateMeasurementUnit"
+          (change)="updateItemPrice(index)"
+        >
+          @for (measurementUnit of measurementUnits; track $index) {
+          <option [value]="measurementUnit.id">
+            {{ measurementUnit.value }}
+          </option>
+          }
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Rate</label>
+        <input
+          type="number"
+          class="form-control"
+          formControlName="rate"
+          (keyup)="updateItemPrice(index)"
+        />
+      </div>
+
+      <div class="mb-3">
         <label class="form-label">Quantity Measurement unit </label>
         <select
           class="form-select"
@@ -44,31 +79,6 @@
           type="number"
           class="form-control"
           formControlName="quantity"
-          (keyup)="updateItemPrice(index)"
-        />
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Rate Measurement unit </label>
-        <select
-          class="form-select"
-          formControlName="rateMeasurementUnit"
-          (change)="updateItemPrice(index)"
-        >
-          @for (measurementUnit of measurementUnits; track $index) {
-          <option [value]="measurementUnit.id">
-            {{ measurementUnit.value }}
-          </option>
-          }
-        </select>
-      </div>
-
-      <div class="mb-3">
-        <label class="form-label">Rate</label>
-        <input
-          type="number"
-          class="form-control"
-          formControlName="rate"
           (keyup)="updateItemPrice(index)"
         />
       </div>

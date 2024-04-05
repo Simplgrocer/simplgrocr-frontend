@@ -39,10 +39,11 @@ export class GroceryListComponent implements OnInit {
       items: new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
-          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
-          quantity: new FormControl(0, [Validators.required]),
+          rateMeasurementQuantity: new FormControl(0, [Validators.required]),
           rateMeasurementUnit: new FormControl(1, [Validators.required]),
           rate: new FormControl(0, [Validators.required]),
+          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+          quantity: new FormControl(0, [Validators.required]),
           price: new FormControl(0, [Validators.required]),
         }),
       ]),
@@ -58,10 +59,11 @@ export class GroceryListComponent implements OnInit {
       new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
-          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
-          quantity: new FormControl(0, [Validators.required]),
+          rateMeasurementQuantity: new FormControl(0, [Validators.required]),
           rateMeasurementUnit: new FormControl(1, [Validators.required]),
           rate: new FormControl(0, [Validators.required]),
+          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+          quantity: new FormControl(0, [Validators.required]),
           price: new FormControl(0, [Validators.required]),
         }),
       ])
@@ -78,12 +80,7 @@ export class GroceryListComponent implements OnInit {
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
-      ).controls['quantityMeasurementUnit'].value,
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['quantity'].value,
+      ).controls['rateMeasurementQuantity'].value,
       (
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
@@ -93,7 +90,17 @@ export class GroceryListComponent implements OnInit {
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
-      ).controls['rate'].value
+      ).controls['rate'].value,
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['quantityMeasurementUnit'].value,
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['quantity'].value
     );
 
     (

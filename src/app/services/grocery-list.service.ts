@@ -7,11 +7,17 @@ export class GroceryListService {
   constructor() {}
 
   getItemPrice(
-    quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
-    quantity: number,
+    rateMeasurementQuantity: number,
     rateMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
-    rate: number
+    rate: number,
+    quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
+    quantity: number
   ): number {
-    return 210;
+    if (rateMeasurementUnit === 'Unit') {
+       
+    }
+
+    return 200;
+
   }
 }
