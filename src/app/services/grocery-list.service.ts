@@ -25,6 +25,12 @@ export class GroceryListService {
     return price;
   }
 
+  async getList() {
+    const list = await database.groceryLists.toArray();
+
+    return list;
+  }
+
   async addList(groceryList: GroceryList) {
     await database.groceryLists.add(groceryList);
   }
