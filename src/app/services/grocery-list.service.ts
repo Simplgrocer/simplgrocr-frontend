@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { GroceryList, GroceryListItem, database } from '../database/database';
 
 @Injectable({
   providedIn: 'root',
@@ -22,5 +23,13 @@ export class GroceryListService {
     }
 
     return price;
+  }
+
+  async addList(groceryList: GroceryList) {
+    await database.groceryLists.add(groceryList);
+  }
+
+  async addListItems(groceryListItems: GroceryListItem[]) {
+    await database.groceryListItems.bulkAdd(groceryListItems)
   }
 }

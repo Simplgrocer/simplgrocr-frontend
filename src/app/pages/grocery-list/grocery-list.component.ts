@@ -116,7 +116,15 @@ export class GroceryListComponent implements OnInit {
     ).controls['price'].setValue(itemPrice);
   }
 
-  onSubmit(): void {
-    console.log(this.groceryListForm);
+  async onSubmit(): Promise<void> {
+    const groceryListForm = this.groceryListForm.value;
+
+    const groceryListId = await this.groceryListService.addList({name: groceryListForm.name});
+
+    for (let i = 1; i < groceryListForm.length; i++) {
+      groceryListForm[i] = {groceryListId, ...groceryListForm[i]}
+    }
+
+    const itemsAdditionStatus = await this.groceryListService.addListItems(groceryListForm.items);
   }
 }
