@@ -5,8 +5,6 @@ import { CookieService } from 'ngx-cookie-service';
   providedIn: 'root',
 })
 export class AuthService {
-  isLoggedIn = false;
-
   constructor(private cookieService: CookieService) {}
 
   getAuthToken(): string {
