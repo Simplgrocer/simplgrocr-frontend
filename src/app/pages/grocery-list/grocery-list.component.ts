@@ -40,7 +40,9 @@ export class GroceryListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.id = this.route.snapshot.url[1].path;
+    try {
+      this.id = this.route.snapshot.url[1].path;
+    } catch (error) {}
 
     if (this.id) {
       this.groceryListForm = new FormGroup({
