@@ -36,6 +36,7 @@ export class GroceryListComponent implements OnInit {
   ngOnInit(): void {
     this.groceryListForm = new FormGroup({
       name: new FormControl('', [Validators.required]),
+      totalPrice: new FormControl(0),
       items: new FormArray([
         new FormGroup({
           name: new FormControl('', [Validators.required]),
@@ -58,6 +59,7 @@ export class GroceryListComponent implements OnInit {
     (this.groceryListForm.get('items') as FormArray).push(
       new FormGroup({
         name: new FormControl('', [Validators.required]),
+        totalPrice: new FormControl(0),
         rateMeasurementQuantity: new FormControl(0, [Validators.required]),
         rateMeasurementUnit: new FormControl(1, [Validators.required]),
         rate: new FormControl(0, [Validators.required]),
@@ -73,7 +75,15 @@ export class GroceryListComponent implements OnInit {
   }
 
   updateItemPrice(index: number): void {
-    const itemPrice = this.groceryListService.getItemPrice(
+    const oldTotalPrice = this.groceryListForm.controls['totalPrice'].value;
+
+    const oldPrice = (
+      (this.groceryListForm.controls['items'] as FormArray).controls[
+        index
+      ] as FormGroup
+    ).controls['price'].value;
+
+    const newPrice = this.groceryListService.getItemPrice(
       (
         (this.groceryListForm.controls['items'] as FormArray).controls[
           index
@@ -113,18 +123,26 @@ export class GroceryListComponent implements OnInit {
       (this.groceryListForm.controls['items'] as FormArray).controls[
         index
       ] as FormGroup
-    ).controls['price'].setValue(itemPrice);
+    ).controls['price'].setValue(newPrice);
+
+    this.groceryListForm.controls['totalPrice'].setValue(
+      oldTotalPrice + newPrice - oldPrice
+    );
   }
 
   async onSubmit(): Promise<void> {
     const groceryListForm = this.groceryListForm.value;
 
-    const groceryListId = await this.groceryListService.addList({name: groceryListForm.name});
+    const groceryListId = await this.groceryListService.addList({
+      name: groceryListForm.name,
+    });
 
     for (let i = 1; i < groceryListForm.length; i++) {
-      groceryListForm[i] = {groceryListId, ...groceryListForm[i]}
+      groceryListForm[i] = { groceryListId, ...groceryListForm[i] };
     }
 
-    const itemsAdditionStatus = await this.groceryListService.addListItems(groceryListForm.items);
+    const itemsAdditionStatus = await this.groceryListService.addListItems(
+      groceryListForm.items
+    );
   }
 }

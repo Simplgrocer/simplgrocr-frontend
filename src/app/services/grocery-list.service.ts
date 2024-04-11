@@ -5,6 +5,9 @@ import { GroceryList, GroceryListItem, database } from '../database/database';
   providedIn: 'root',
 })
 export class GroceryListService {
+  getTotalPrice(arg0: import("@angular/forms").AbstractControl<any, any>[]): any {
+    throw new Error('Method not implemented.');
+  }
   constructor() {}
 
   getItemPrice(
