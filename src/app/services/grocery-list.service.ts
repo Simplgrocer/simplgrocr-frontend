@@ -5,9 +5,6 @@ import { GroceryList, GroceryListItem, database } from '../database/database';
   providedIn: 'root',
 })
 export class GroceryListService {
-  getTotalPrice(arg0: import("@angular/forms").AbstractControl<any, any>[]): any {
-    throw new Error('Method not implemented.');
-  }
   constructor() {}
 
   getItemPrice(
@@ -17,12 +14,21 @@ export class GroceryListService {
     quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
     quantity: number
   ): number {
-    console.log(rateMeasurementQuantity, rateMeasurementUnit, rate, quantityMeasurementUnit, quantity)
+    console.log(
+      rateMeasurementQuantity,
+      rateMeasurementUnit,
+      rate,
+      quantityMeasurementUnit,
+      quantity
+    );
 
     let price: number = 0;
 
     if (rateMeasurementUnit === 'Unit') {
-      price = rateMeasurementQuantity < 2 ? rate * quantity : Number(((rate / rateMeasurementQuantity) * quantity).toFixed(2));
+      price =
+        rateMeasurementQuantity < 2
+          ? rate * quantity
+          : Number(((rate / rateMeasurementQuantity) * quantity).toFixed(2));
     }
 
     return price;
@@ -39,6 +45,6 @@ export class GroceryListService {
   }
 
   async addListItems(groceryListItems: GroceryListItem[]) {
-    await database.groceryListItems.bulkAdd(groceryListItems)
+    await database.groceryListItems.bulkAdd(groceryListItems);
   }
 }
