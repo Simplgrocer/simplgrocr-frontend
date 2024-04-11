@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { GroceryListService } from '../../services/grocery-list.service';
+import { ActivatedRoute } from '@angular/router';
 
 interface MeasurementUnit {
   id: number;
@@ -29,26 +30,51 @@ export class GroceryListComponent implements OnInit {
     { id: 3, value: 'Gram' },
   ];
 
+  id: string | null | undefined;
+
   groceryListForm!: FormGroup;
 
-  constructor(private groceryListService: GroceryListService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private groceryListService: GroceryListService
+  ) {}
 
   ngOnInit(): void {
-    this.groceryListForm = new FormGroup({
-      name: new FormControl('', [Validators.required]),
-      totalPrice: new FormControl(0),
-      items: new FormArray([
-        new FormGroup({
-          name: new FormControl('', [Validators.required]),
-          rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl(1, [Validators.required]),
-          rate: new FormControl(0, [Validators.required]),
-          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
-          quantity: new FormControl(0, [Validators.required]),
-          price: new FormControl(0, [Validators.required]),
-        }),
-      ]),
-    });
+    this.id = this.route.snapshot.url[1].path;
+
+    if (this.id) {
+      this.groceryListForm = new FormGroup({
+        name: new FormControl('Pre', [Validators.required]),
+        totalPrice: new FormControl(0),
+        items: new FormArray([
+          new FormGroup({
+            name: new FormControl('Pre', [Validators.required]),
+            rateMeasurementQuantity: new FormControl(0, [Validators.required]),
+            rateMeasurementUnit: new FormControl(1, [Validators.required]),
+            rate: new FormControl(0, [Validators.required]),
+            quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+            quantity: new FormControl(0, [Validators.required]),
+            price: new FormControl(0, [Validators.required]),
+          }),
+        ]),
+      });
+    } else {
+      this.groceryListForm = new FormGroup({
+        name: new FormControl('', [Validators.required]),
+        totalPrice: new FormControl(0),
+        items: new FormArray([
+          new FormGroup({
+            name: new FormControl('', [Validators.required]),
+            rateMeasurementQuantity: new FormControl(0, [Validators.required]),
+            rateMeasurementUnit: new FormControl(1, [Validators.required]),
+            rate: new FormControl(0, [Validators.required]),
+            quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+            quantity: new FormControl(0, [Validators.required]),
+            price: new FormControl(0, [Validators.required]),
+          }),
+        ]),
+      });
+    }
   }
 
   getItemsArrayControls(): AbstractControl<any, any>[] {
