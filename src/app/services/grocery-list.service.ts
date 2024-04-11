@@ -14,14 +14,6 @@ export class GroceryListService {
     quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
     quantity: number
   ): number {
-    console.log(
-      rateMeasurementQuantity,
-      rateMeasurementUnit,
-      rate,
-      quantityMeasurementUnit,
-      quantity
-    );
-
     let price: number = 0;
 
     if (rateMeasurementUnit === 'Unit') {
