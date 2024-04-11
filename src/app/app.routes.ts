@@ -3,6 +3,7 @@ import { IndexComponent } from './pages/index/index.component';
 import { GroceryListComponent } from './pages/grocery-list/grocery-list.component';
 import { LoginComponent } from './components/login/login.component';
 import { OnboardingComponent } from './components/onboarding/onboarding.component';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -23,6 +24,7 @@ export const routes: Routes = [
   {
     path: 'grocery-list',
     component: GroceryListComponent,
+    canActivate: [authGuard],
     title: 'Grocery list',
   },
 ];
