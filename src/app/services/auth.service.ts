@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { CookieService } from 'ngx-cookie-service';
 
 @Injectable({
   providedIn: 'root',
@@ -6,9 +7,19 @@ import { Injectable } from '@angular/core';
 export class AuthService {
   isLoggedIn = false;
 
-  constructor() {}
+  constructor(private cookieService: CookieService) {}
 
-  isAuthenticated() {
-    return this.isLoggedIn;
+  getAuthToken(): string {
+    return this.cookieService.get('token');
+  }
+
+  isAuthenticated(): boolean {
+    const token = this.getAuthToken();
+
+    if (token) {
+      return true;
+    }
+
+    return false;
   }
 }

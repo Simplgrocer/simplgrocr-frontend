@@ -7,6 +7,7 @@ import {
 } from '@angular/forms';
 import { LoginResponse, LoginService } from '../../services/login.service';
 import { Router } from '@angular/router';
+import { CookieService } from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-login',
@@ -25,7 +26,11 @@ export class LoginComponent implements OnInit {
   redirectionTimeout = 5000;
   redirectionTimeoutDisplay = 5;
 
-  constructor(private loginService: LoginService, private router: Router) {}
+  constructor(
+    private loginService: LoginService,
+    private router: Router,
+    private cookieService: CookieService
+  ) {}
 
   ngOnInit(): void {
     this.loginForm = new FormGroup({
@@ -43,6 +48,15 @@ export class LoginComponent implements OnInit {
         .subscribe({
           next: (response: LoginResponse) => {
             this.loginFormStatus = 'Submitted';
+
+            this.cookieService.set(
+              'token',
+              response.token,
+              1,
+              '/',
+              'localhost',
+              true
+            );
 
             let startTime = Date.now();
 
