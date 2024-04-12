@@ -3,12 +3,14 @@ import Dexie, { Table } from 'dexie';
 export interface GroceryList {
   id?: number;
   name: string;
+  description?: string;
 }
 
 export interface GroceryListItem {
   id?: number;
   groceryListId: number;
   name: string;
+  description?: string;
   rateMeasurementQuantity: number;
   rateMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram';
   rate: number;

@@ -17,7 +17,18 @@
 <form [formGroup]="groceryListForm" (ngSubmit)="onSubmit()">
   <div class="mb-3">
     <label class="form-label">Name</label>
-    <input type="text" class="form-control" formControlName="name" />
+    <input type="text" class="form-control" formControlName="name" required />
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Description</label>
+    <div
+      class="form-control"
+      formControlName="description"
+      required
+      contenteditable="true"
+      aria-multiline="true"
+    ></div>
   </div>
 
   <h3>Items</h3>
@@ -37,11 +48,27 @@
             </button>
           </div>
 
-          <br>
+          <br />
 
           <div class="mb-3">
             <label class="form-label">Name</label>
-            <input type="text" class="form-control" formControlName="name" />
+            <input
+              type="text"
+              class="form-control"
+              formControlName="name"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <div
+              class="form-control"
+              formControlName="description"
+              required
+              contenteditable="true"
+              aria-multiline="true"
+            ></div>
           </div>
 
           <div class="mb-3">
@@ -51,6 +78,7 @@
               class="form-control"
               formControlName="rateMeasurementQuantity"
               (keyup)="updateItemPrice(index)"
+              required
             />
           </div>
 
@@ -60,6 +88,7 @@
               class="form-select"
               formControlName="rateMeasurementUnit"
               (change)="updateItemPrice(index)"
+              required
             >
               @for (measurementUnit of measurementUnits; track $index) {
               <option [value]="measurementUnit.id">
@@ -76,6 +105,7 @@
               class="form-control"
               formControlName="rate"
               (keyup)="updateItemPrice(index)"
+              required
             />
           </div>
 
@@ -85,6 +115,7 @@
               class="form-select"
               formControlName="quantityMeasurementUnit"
               (change)="updateItemPrice(index)"
+              required
             >
               @for (measurementUnit of measurementUnits; track $index) {
               <option [value]="measurementUnit.id">
@@ -101,6 +132,7 @@
               class="form-control"
               formControlName="quantity"
               (keyup)="updateItemPrice(index)"
+              required
             />
           </div>
 
@@ -116,7 +148,7 @@
       </div>
     </div>
 
-    <br>
+    <br />
     }
   </div>
 
@@ -134,7 +166,6 @@
       contenteditable="true"
       aria-multiline="true"
       class="form-control"
-      placeholder="Required example textarea"
     ></div>
   </div>
 

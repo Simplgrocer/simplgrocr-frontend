@@ -47,10 +47,12 @@ export class GroceryListComponent implements OnInit {
     if (this.id) {
       this.groceryListForm = new FormGroup({
         name: new FormControl('Pre', [Validators.required]),
+        description: new FormControl(''),
         totalPrice: new FormControl(0),
         items: new FormArray([
           new FormGroup({
             name: new FormControl('Pre', [Validators.required]),
+            description: new FormControl(''),
             rateMeasurementQuantity: new FormControl(0, [Validators.required]),
             rateMeasurementUnit: new FormControl(1, [Validators.required]),
             rate: new FormControl(0, [Validators.required]),
@@ -63,10 +65,12 @@ export class GroceryListComponent implements OnInit {
     } else {
       this.groceryListForm = new FormGroup({
         name: new FormControl('', [Validators.required]),
+        description: new FormControl(''),
         totalPrice: new FormControl(0),
         items: new FormArray([
           new FormGroup({
             name: new FormControl('', [Validators.required]),
+            description: new FormControl(''),
             rateMeasurementQuantity: new FormControl(0, [Validators.required]),
             rateMeasurementUnit: new FormControl(1, [Validators.required]),
             rate: new FormControl(0, [Validators.required]),
@@ -87,6 +91,7 @@ export class GroceryListComponent implements OnInit {
     (this.groceryListForm.get('items') as FormArray).push(
       new FormGroup({
         name: new FormControl('', [Validators.required]),
+        description: new FormControl(''),
         totalPrice: new FormControl(0),
         rateMeasurementQuantity: new FormControl(0, [Validators.required]),
         rateMeasurementUnit: new FormControl(1, [Validators.required]),
@@ -163,6 +168,7 @@ export class GroceryListComponent implements OnInit {
 
     const groceryListId = await this.groceryListService.addList({
       name: groceryListForm.name,
+      description: groceryListForm.description
     });
 
     for (let i = 1; i < groceryListForm.length; i++) {
