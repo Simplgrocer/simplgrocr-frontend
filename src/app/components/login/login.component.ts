@@ -55,7 +55,7 @@ export class LoginComponent implements OnInit {
               1,
               '/',
               'localhost',
-              true
+              false // note: For local testing set secure to false. But for production set it to true.
             );
 
             let startTime = Date.now();
