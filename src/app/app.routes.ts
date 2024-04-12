@@ -24,7 +24,7 @@ export const routes: Routes = [
   {
     path: 'grocery-list',
     component: GroceryListComponent,
-    // canActivate: [authGuard],
+    canActivate: [authGuard],
     title: 'Grocery list',
   },
   {
