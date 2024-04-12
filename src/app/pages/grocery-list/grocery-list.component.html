@@ -1,12 +1,19 @@
-<div class="row price-div sticky-top">
+<div class="row navbar price-div sticky-top py-3">
   <div class="col">
     <label class="form-label">Total</label>
   </div>
   <div class="col text-end">
-    <label class="form-label">{{ groceryListForm.controls['totalPrice'].value }}</label>
+    <label class="form-label">{{
+      groceryListForm.controls["totalPrice"].value
+    }}</label>
   </div>
 </div>
 
+<br />
+
+<div class="row">
+  <div class="col"></div>
+</div>
 <form [formGroup]="groceryListForm" (ngSubmit)="onSubmit()">
   <div class="mb-3">
     <label class="form-label">Name</label>
@@ -17,95 +24,99 @@
 
   <div formArrayName="items">
     @for (item of getItemsArrayControls(); track item; let index = $index) {
-    <div formGroupName="{{ index }}">
-      <div class="mb-3">
-        <label class="form-label">Name</label>
-        <input type="text" class="form-control" formControlName="name" />
-      </div>
+    <div class="card">
+      <div class="card-body">
+        <div formGroupName="{{ index }}">
+          <div class="text-end pt-1">
+            <button
+              type="button"
+              class="btn btn-danger"
+              (click)="deleteItem(index)"
+            >
+              Delete item
+            </button>
+          </div>
 
-      <div class="mb-3">
-        <label class="form-label">Rate Measurement quantity</label>
-        <input
-          type="number"
-          class="form-control"
-          formControlName="rateMeasurementQuantity"
-          (keyup)="updateItemPrice(index)"
-        />
-      </div>
+          <br>
 
-      <div class="mb-3">
-        <label class="form-label">Rate Measurement unit</label>
-        <select
-          class="form-select"
-          formControlName="rateMeasurementUnit"
-          (change)="updateItemPrice(index)"
-        >
-          @for (measurementUnit of measurementUnits; track $index) {
-          <option [value]="measurementUnit.id">
-            {{ measurementUnit.value }}
-          </option>
-          }
-        </select>
-      </div>
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input type="text" class="form-control" formControlName="name" />
+          </div>
 
-      <div class="mb-3">
-        <label class="form-label">Rate</label>
-        <input
-          type="number"
-          class="form-control"
-          formControlName="rate"
-          (keyup)="updateItemPrice(index)"
-        />
-      </div>
+          <div class="mb-3">
+            <label class="form-label">Rate Measurement quantity</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="rateMeasurementQuantity"
+              (keyup)="updateItemPrice(index)"
+            />
+          </div>
 
-      <div class="mb-3">
-        <label class="form-label">Quantity Measurement unit </label>
-        <select
-          class="form-select"
-          formControlName="quantityMeasurementUnit"
-          (change)="updateItemPrice(index)"
-        >
-          @for (measurementUnit of measurementUnits; track $index) {
-          <option [value]="measurementUnit.id">
-            {{ measurementUnit.value }}
-          </option>
-          }
-        </select>
-      </div>
+          <div class="mb-3">
+            <label class="form-label">Rate Measurement unit</label>
+            <select
+              class="form-select"
+              formControlName="rateMeasurementUnit"
+              (change)="updateItemPrice(index)"
+            >
+              @for (measurementUnit of measurementUnits; track $index) {
+              <option [value]="measurementUnit.id">
+                {{ measurementUnit.value }}
+              </option>
+              }
+            </select>
+          </div>
 
-      <div class="mb-3">
-        <label class="form-label">Quantity</label>
-        <input
-          type="number"
-          class="form-control"
-          formControlName="quantity"
-          (keyup)="updateItemPrice(index)"
-        />
-      </div>
+          <div class="mb-3">
+            <label class="form-label">Rate</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="rate"
+              (keyup)="updateItemPrice(index)"
+            />
+          </div>
 
-      <div class="row">
-        <div class="col">
-          <label class="form-label">Total</label>
+          <div class="mb-3">
+            <label class="form-label">Quantity Measurement unit </label>
+            <select
+              class="form-select"
+              formControlName="quantityMeasurementUnit"
+              (change)="updateItemPrice(index)"
+            >
+              @for (measurementUnit of measurementUnits; track $index) {
+              <option [value]="measurementUnit.id">
+                {{ measurementUnit.value }}
+              </option>
+              }
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Quantity</label>
+            <input
+              type="number"
+              class="form-control"
+              formControlName="quantity"
+              (keyup)="updateItemPrice(index)"
+            />
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <label class="form-label">Total</label>
+            </div>
+            <div class="col text-end">
+              <label class="form-label">{{ item.get("price")?.value }}</label>
+            </div>
+          </div>
         </div>
-        <div class="col text-end">
-          <label class="form-label">{{ item.get("price")?.value }}</label>
-        </div>
       </div>
-
-      <br />
-
-      <div class="text-end">
-        <button
-          type="button"
-          class="btn btn-danger"
-          (click)="deleteItem(index)"
-        >
-          Delete item
-        </button>
-      </div>
-
-      <br />
     </div>
+
+    <br>
     }
   </div>
 
