@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { GroceryListService, UserGroceryListsResponse } from '../../services/grocery-list.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-index',
@@ -11,7 +12,7 @@ import { GroceryListService, UserGroceryListsResponse } from '../../services/gro
 export class IndexComponent implements OnInit {
   groceryLists: UserGroceryListsResponse[] = [];
 
-  constructor(private groceryListService: GroceryListService) {}
+  constructor(private router: Router, private groceryListService: GroceryListService) {}
 
   ngOnInit() {
     this.groceryListService.getUserGroceryLists().subscribe({
@@ -19,5 +20,9 @@ export class IndexComponent implements OnInit {
         this.groceryLists = response;
       }
     });
+  }
+
+  expandUserGroceryList(index: number) {
+    this.router.navigate([`grocery-list/${index}`]);
   }
 }

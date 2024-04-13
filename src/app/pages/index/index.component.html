@@ -1,6 +1,6 @@
-@for (groceryList of groceryLists; track groceryList.id) {
+@for (groceryList of groceryLists; track groceryList.id; let index = $index) {
 <div class="card">
-  <div class="card-body">
+  <div class="card-body" (click)="expandUserGroceryList(index)">
     <h5 class="card-title">{{ groceryList.name }}</h5>
   </div>
 </div>
