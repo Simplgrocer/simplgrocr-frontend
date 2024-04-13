@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { GroceryListService } from '../../services/grocery-list.service';
-import { GroceryList } from '../../database/database';
+import { GroceryListService, UserGroceryListsResponse } from '../../services/grocery-list.service';
 
 @Component({
   selector: 'app-index',
@@ -10,13 +9,15 @@ import { GroceryList } from '../../database/database';
   styleUrl: './index.component.css',
 })
 export class IndexComponent implements OnInit {
-  groceryLists: GroceryList[] = [];
+  groceryLists: UserGroceryListsResponse[] = [];
 
-  constructor(private grocerylistService: GroceryListService) {}
+  constructor(private groceryListService: GroceryListService) {}
 
-  async ngOnInit(): Promise<void> {
-    const list = await this.grocerylistService.getList();
-
-    this.groceryLists = list;
+  ngOnInit() {
+    this.groceryListService.getUserGroceryLists().subscribe({
+      next: (response: UserGroceryListsResponse[]) => {
+        this.groceryLists = response;
+      }
+    });
   }
 }

@@ -1,11 +1,25 @@
 import { Injectable } from '@angular/core';
 import { GroceryList, GroceryListItem, database } from '../database/database';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+
+export interface UserGroceryListsResponse {
+  id: number;
+  name: string;
+  description: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class GroceryListService {
-  constructor() {}
+  constructor(private httpClient: HttpClient) {}
+
+  getUserGroceryLists(): Observable<UserGroceryListsResponse[]> {
+    return this.httpClient.get<UserGroceryListsResponse[]>(
+      'https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists'
+    );
+  }
 
   getItemPrice(
     rateMeasurementQuantity: number,
