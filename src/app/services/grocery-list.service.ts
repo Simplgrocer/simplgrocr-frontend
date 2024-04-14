@@ -40,7 +40,9 @@ export class GroceryListService {
     );
   }
 
-  getUserGroceryListItems(id: string): Observable<UserGroceryListItemResponse[]> {
+  getUserGroceryListItems(
+    id: string
+  ): Observable<UserGroceryListItemResponse[]> {
     return this.httpClient.get<UserGroceryListItemResponse[]>(
       `https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists/${id}/items`
     );
@@ -60,6 +62,15 @@ export class GroceryListService {
         rateMeasurementQuantity < 2
           ? rate * quantity
           : Number(((rate / rateMeasurementQuantity) * quantity).toFixed(2));
+    } else {
+      const conversionFactor =
+        (rateMeasurementUnit === 'Kilogram' &&
+          quantityMeasurementUnit === 'Kilogram') ||
+        (rateMeasurementUnit === 'Gram' && quantityMeasurementUnit === 'Gram')
+          ? 1
+          : 1000;
+
+      price = (rate * (quantity / conversionFactor));
     }
 
     return price;

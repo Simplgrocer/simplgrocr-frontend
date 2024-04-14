@@ -18,7 +18,7 @@ import { ContentEditableDirective } from '../../directives/content-editable.dire
 import { switchMap, of, map } from 'rxjs';
 
 interface MeasurementUnit {
-  id: number;
+  id: string;
   value: 'Unit' | 'Kilogram' | 'Gram';
 }
 
@@ -31,9 +31,9 @@ interface MeasurementUnit {
 })
 export class GroceryListComponent implements OnInit {
   measurementUnits: MeasurementUnit[] = [
-    { id: 1, value: 'Unit' },
-    { id: 2, value: 'Kilogram' },
-    { id: 3, value: 'Gram' },
+    { id: "1", value: 'Unit' },
+    { id: "2", value: 'Kilogram' },
+    { id: "3", value: 'Gram' },
   ];
 
   id: string | null | undefined;
@@ -117,9 +117,9 @@ export class GroceryListComponent implements OnInit {
           name: new FormControl('', [Validators.required]),
           description: new FormControl(''),
           rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl(1, [Validators.required]),
+          rateMeasurementUnit: new FormControl("1", [Validators.required]),
           rate: new FormControl(0, [Validators.required]),
-          quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+          quantityMeasurementUnit: new FormControl("1", [Validators.required]),
           quantity: new FormControl(0, [Validators.required]),
           price: new FormControl(0, [Validators.required]),
         })
@@ -138,9 +138,9 @@ export class GroceryListComponent implements OnInit {
         description: new FormControl(''),
         totalPrice: new FormControl(0),
         rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-        rateMeasurementUnit: new FormControl(1, [Validators.required]),
+        rateMeasurementUnit: new FormControl("1", [Validators.required]),
         rate: new FormControl(0, [Validators.required]),
-        quantityMeasurementUnit: new FormControl(1, [Validators.required]),
+        quantityMeasurementUnit: new FormControl("1", [Validators.required]),
         quantity: new FormControl(0, [Validators.required]),
         price: new FormControl(0, [Validators.required]),
       })
