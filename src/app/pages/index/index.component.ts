@@ -22,7 +22,7 @@ export class IndexComponent implements OnInit {
     });
   }
 
-  expandUserGroceryList(index: number) {
-    this.router.navigate([`grocery-list/${index}`]);
+  expandUserGroceryList(id: number) {
+    this.router.navigate([`grocery-list/${id}`]);
   }
 }
