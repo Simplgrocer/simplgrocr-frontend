@@ -3,10 +3,23 @@ import { GroceryList, GroceryListItem, database } from '../database/database';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 
-export interface UserGroceryListsResponse {
+export interface UserGroceryListResponse {
   id: number;
   name: string;
   description: string;
+  totalPrice: number;
+}
+
+export interface UserGroceryListItemResponse {
+  id: number;
+  name: string;
+  description: string;
+  rateMeasurementQuantity: number;
+  rateMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram';
+  rate: number;
+  quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram';
+  quantity: number;
+  price: number;
 }
 
 @Injectable({
@@ -15,9 +28,21 @@ export interface UserGroceryListsResponse {
 export class GroceryListService {
   constructor(private httpClient: HttpClient) {}
 
-  getUserGroceryLists(): Observable<UserGroceryListsResponse[]> {
-    return this.httpClient.get<UserGroceryListsResponse[]>(
+  getUserGroceryLists(): Observable<UserGroceryListResponse[]> {
+    return this.httpClient.get<UserGroceryListResponse[]>(
       'https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists'
+    );
+  }
+
+  getUserGroceryList(id: string): Observable<UserGroceryListResponse> {
+    return this.httpClient.get<UserGroceryListResponse>(
+      `https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists/${id}`
+    );
+  }
+
+  getUserGroceryListItems(id: string): Observable<UserGroceryListItemResponse[]> {
+    return this.httpClient.get<UserGroceryListItemResponse[]>(
+      `https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists/${id}/items`
     );
   }
 

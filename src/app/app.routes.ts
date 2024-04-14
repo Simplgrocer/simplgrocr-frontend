@@ -1,8 +1,8 @@
 import { Routes } from '@angular/router';
 import { IndexComponent } from './pages/index/index.component';
 import { GroceryListComponent } from './pages/grocery-list/grocery-list.component';
-import { LoginComponent } from './components/login/login.component';
-import { OnboardingComponent } from './components/onboarding/onboarding.component';
+import { LoginComponent } from './pages/login/login.component';
+import { OnboardingComponent } from './pages/onboarding/onboarding.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [

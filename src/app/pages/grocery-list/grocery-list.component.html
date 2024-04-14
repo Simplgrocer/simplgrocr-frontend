@@ -3,9 +3,11 @@
     <label class="form-label">Total</label>
   </div>
   <div class="col text-end">
+    @if (groceryListForm) {
     <label class="form-label">{{
       groceryListForm.controls["totalPrice"].value
     }}</label>
+    }
   </div>
 </div>
 
@@ -14,6 +16,7 @@
 <div class="row">
   <div class="col"></div>
 </div>
+@if (groceryListForm) {
 <form [formGroup]="groceryListForm" (ngSubmit)="onSubmit()">
   <div class="mb-3">
     <label class="form-label">Name</label>
@@ -26,6 +29,7 @@
       class="form-control"
       formControlName="description"
       required
+      appContentEditable
       contenteditable="true"
       aria-multiline="true"
     ></div>
@@ -63,9 +67,11 @@
           <div class="mb-3">
             <label class="form-label">Description</label>
             <div
+              type="text"
               class="form-control"
               formControlName="description"
               required
+              appContentEditable
               contenteditable="true"
               aria-multiline="true"
             ></div>
@@ -175,9 +181,10 @@
     </button>
   </div>
 
-  <br>
+  <br />
 
   <div class="text-end">
     <button type="submit" class="btn btn-primary">Create</button>
   </div>
 </form>
+}
