@@ -18,12 +18,15 @@ export interface UserGroceryListItemResponse {
   id: number;
   name: string;
   description: string;
-  rateMeasurementQuantity: number;
-  rateMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram';
+  rate_measurement_quantity: number;
+  rate_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
   rate: number;
-  quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram';
+  quantity_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
   quantity: number;
   price: number;
+  created_at: string;
+  updated_at: string;
+  grocery_list: number;
 }
 
 @Injectable({
@@ -37,7 +40,6 @@ export class GroceryListService {
   }
 
   getUserGroceryLists(): Observable<UserGroceryListResponse[]> {
-    console.log(this.authService.getAuthToken())
     const headers = new HttpHeaders({
       'Authorization': `Token ${this.token}`,
     });
@@ -51,8 +53,15 @@ export class GroceryListService {
   }
 
   getUserGroceryList(id: string): Observable<UserGroceryListResponse> {
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${this.token}`,
+    });
+
     return this.httpClient.get<UserGroceryListResponse>(
-      `https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists/${id}`
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists/${id}`,
+      {
+        headers: headers
+      }
     );
   }
 

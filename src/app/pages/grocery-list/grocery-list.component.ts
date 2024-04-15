@@ -80,19 +80,19 @@ export class GroceryListComponent implements OnInit {
                 name: new FormControl(item.name, [Validators.required]),
                 description: new FormControl(item.description),
                 rateMeasurementQuantity: new FormControl(
-                  item.rateMeasurementQuantity,
+                  item.rate_measurement_quantity,
                   [Validators.required]
                 ),
                 rateMeasurementUnit: new FormControl(
                   this.measurementUnits.find(
-                    (obj) => obj.value === item.rateMeasurementUnit
+                    (obj) => obj.value === item.rate_measurement_unit
                   )!.id,
                   [Validators.required]
                 ),
                 rate: new FormControl(item.rate, [Validators.required]),
                 quantityMeasurementUnit: new FormControl(
                   this.measurementUnits.find(
-                    (obj) => obj.value === item.quantityMeasurementUnit
+                    (obj) => obj.value === item.quantity_measurement_unit
                   )!.id,
                   [Validators.required]
                 ),
