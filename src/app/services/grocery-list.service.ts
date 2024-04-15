@@ -1,13 +1,17 @@
 import { Injectable } from '@angular/core';
 import { GroceryList, GroceryListItem, database } from '../database/database';
 import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { AuthService } from './auth.service';
 
 export interface UserGroceryListResponse {
   id: number;
   name: string;
   description: string;
-  totalPrice: number;
+  total_price: number;
+  created_at: string;
+  updated_at: string;
+  user: number;
 }
 
 export interface UserGroceryListItemResponse {
@@ -26,11 +30,23 @@ export interface UserGroceryListItemResponse {
   providedIn: 'root',
 })
 export class GroceryListService {
-  constructor(private httpClient: HttpClient) {}
+  token !: string;
+
+  constructor(private httpClient: HttpClient, private authService: AuthService) {
+    this.token = this.authService.getAuthToken()
+  }
 
   getUserGroceryLists(): Observable<UserGroceryListResponse[]> {
+    console.log(this.authService.getAuthToken())
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${this.token}`,
+    });
+
     return this.httpClient.get<UserGroceryListResponse[]>(
-      'https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists'
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists`,
+      {
+        headers: headers
+      }
     );
   }
 

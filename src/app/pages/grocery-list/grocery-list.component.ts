@@ -56,7 +56,7 @@ export class GroceryListComponent implements OnInit {
           this.groceryListForm = new FormGroup({
             name: new FormControl(response.name, [Validators.required]),
             description: new FormControl(response.description),
-            totalPrice: new FormControl(response.totalPrice),
+            totalPrice: new FormControl(response.total_price),
             items: new FormArray([]),
           });
         },
