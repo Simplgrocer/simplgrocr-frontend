@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 export interface LoginResponse {
-  token: string;
+  auth_token: string;
 }
 
 @Injectable({
@@ -14,7 +14,7 @@ export class LoginService {
 
   login(username: string, password: string): Observable<LoginResponse> {
     return this.httpClient.post<LoginResponse>(
-      'https://run.mocky.io/v3/b128776e-b2a6-4f21-becb-38893a75a4af',
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/token/login`,
       { username, password }
     );
   }

@@ -70,7 +70,7 @@ export class GroceryListService {
           ? 1
           : 1000;
 
-      price = (rate * (quantity / conversionFactor));
+      price = rate * (quantity / conversionFactor);
     }
 
     return price;

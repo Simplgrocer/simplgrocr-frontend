@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
 
             this.cookieService.set(
               'token',
-              response.token,
+              response.auth_token,
               1,
               '/',
               'localhost',
