@@ -68,8 +68,15 @@ export class GroceryListService {
   getUserGroceryListItems(
     id: string
   ): Observable<UserGroceryListItemResponse[]> {
+    const headers = new HttpHeaders({
+      'Authorization': `Token ${this.token}`,
+    });
+
     return this.httpClient.get<UserGroceryListItemResponse[]>(
-      `https://849a228e-f159-4506-9d67-9293b11bc6a5.mock.pstmn.io/api/user/grocery-lists/${id}/items`
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists/${id}/items`,
+      {
+        headers: headers
+      }
     );
   }
 
