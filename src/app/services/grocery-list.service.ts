@@ -1,8 +1,26 @@
 import { Injectable } from '@angular/core';
-import { GroceryList, GroceryListItem, database } from '../database/database';
+import { GroceryListItem, database } from '../database/database';
 import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
+
+export interface GroceryListPayload {
+  name: string;
+  description?: string;
+  total_price: number;
+}
+
+export interface GroceryListItemPayload {
+  name: string;
+  description?: string;
+  rate_measurement_quantity: number;
+  rate_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
+  rate: number;
+  quantity_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
+  quantity: number;
+  price: number;
+  grocery_list: number
+}
 
 export interface UserGroceryListResponse {
   id: number;
@@ -33,34 +51,59 @@ export interface UserGroceryListItemResponse {
   providedIn: 'root',
 })
 export class GroceryListService {
-  token !: string;
+  token!: string;
 
-  constructor(private httpClient: HttpClient, private authService: AuthService) {
-    this.token = this.authService.getAuthToken()
+  constructor(
+    private httpClient: HttpClient,
+    private authService: AuthService
+  ) {
+    this.token = this.authService.getAuthToken();
   }
 
   getUserGroceryLists(): Observable<UserGroceryListResponse[]> {
     const headers = new HttpHeaders({
-      'Authorization': `Token ${this.token}`,
+      Authorization: `Token ${this.token}`,
     });
 
     return this.httpClient.get<UserGroceryListResponse[]>(
-      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists`,
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists`,
       {
-        headers: headers
+        headers: headers,
       }
     );
   }
 
   getUserGroceryList(id: string): Observable<UserGroceryListResponse> {
     const headers = new HttpHeaders({
-      'Authorization': `Token ${this.token}`,
+      Authorization: `Token ${this.token}`,
     });
 
     return this.httpClient.get<UserGroceryListResponse>(
-      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists/${id}`,
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${id}`,
       {
-        headers: headers
+        headers: headers,
+      }
+    );
+  }
+
+  createUserGroceryList(
+    groceryList: GroceryListPayload
+  ): Observable<UserGroceryListResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.post<UserGroceryListResponse>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/`,
+      groceryList,
+      {
+        headers: headers,
       }
     );
   }
@@ -69,13 +112,34 @@ export class GroceryListService {
     id: string
   ): Observable<UserGroceryListItemResponse[]> {
     const headers = new HttpHeaders({
-      'Authorization': `Token ${this.token}`,
+      Authorization: `Token ${this.token}`,
     });
 
     return this.httpClient.get<UserGroceryListItemResponse[]>(
-      `${import.meta.env['NG_APP_API_BASE_URL']}/${import.meta.env['NG_APP_API_PREFIX']}/users/grocery-lists/${id}/items`,
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${id}/items`,
       {
-        headers: headers
+        headers: headers,
+      }
+    );
+  }
+
+  createUserGroceryListItem(
+    groceryListID: number,
+    groceryListItem: GroceryListItemPayload
+  ): Observable<UserGroceryListItemResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.post<UserGroceryListItemResponse>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${groceryListID}/items/`,
+      groceryListItem,
+      {
+        headers: headers,
       }
     );
   }
@@ -112,10 +176,6 @@ export class GroceryListService {
     const list = await database.groceryLists.toArray();
 
     return list;
-  }
-
-  async addList(groceryList: GroceryList) {
-    await database.groceryLists.add(groceryList);
   }
 
   async addListItems(groceryListItems: GroceryListItem[]) {

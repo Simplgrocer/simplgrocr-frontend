@@ -17,7 +17,10 @@
   <div class="col"></div>
 </div>
 @if (groceryListForm) {
-<form [formGroup]="groceryListForm" (ngSubmit)="onSubmit()">
+<form
+  [formGroup]="groceryListForm"
+  (ngSubmit)="id ? createUserGroceryList() : updateUserGroceryList()"
+>
   <div class="mb-3">
     <label class="form-label">Name</label>
     <input type="text" class="form-control" formControlName="name" required />
@@ -159,7 +162,11 @@
   </div>
 
   <div class="text-center">
-    <button type="button" class="btn btn-success" (click)="addItem()">
+    <button
+      type="button"
+      class="btn btn-success"
+      (click)="addUserGroceryListItem()"
+    >
       Add item
     </button>
   </div>
@@ -176,7 +183,11 @@
   </div>
 
   <div class="text-center">
-    <button type="button" class="btn btn-success" (click)="addItem()">
+    <button
+      type="button"
+      class="btn btn-success"
+      (click)="addUserGroceryListItem()"
+    >
       Generate
     </button>
   </div>
@@ -184,7 +195,9 @@
   <br />
 
   <div class="text-end">
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary">
+      {{ id ? "Update" : "Create" }}
+    </button>
   </div>
 </form>
 }

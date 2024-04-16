@@ -13,7 +13,7 @@ import {
   UserGroceryListItemResponse,
   UserGroceryListResponse,
 } from '../../services/grocery-list.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import { switchMap, of, map } from 'rxjs';
 
@@ -31,9 +31,9 @@ interface MeasurementUnit {
 })
 export class GroceryListComponent implements OnInit {
   measurementUnits: MeasurementUnit[] = [
-    { id: "1", value: 'Unit' },
-    { id: "2", value: 'Kilogram' },
-    { id: "3", value: 'Gram' },
+    { id: '1', value: 'Unit' },
+    { id: '2', value: 'Kilogram' },
+    { id: '3', value: 'Gram' },
   ];
 
   id: string | null | undefined;
@@ -42,7 +42,8 @@ export class GroceryListComponent implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
-    private groceryListService: GroceryListService
+    private groceryListService: GroceryListService,
+    private router: Router
   ) {}
 
   ngOnInit() {
@@ -97,7 +98,7 @@ export class GroceryListComponent implements OnInit {
                   [Validators.required]
                 ),
                 quantity: new FormControl(item.quantity, [Validators.required]),
-                price: new FormControl(item.price, [Validators.required]),
+                pricerice: new FormControl(item.price, [Validators.required]),
               });
             });
           })
@@ -111,19 +112,6 @@ export class GroceryListComponent implements OnInit {
             }
           },
         });
-    } else {
-      (this.groceryListForm.get('items') as FormArray).push(
-        new FormGroup({
-          name: new FormControl('', [Validators.required]),
-          description: new FormControl(''),
-          rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-          rateMeasurementUnit: new FormControl("1", [Validators.required]),
-          rate: new FormControl(0, [Validators.required]),
-          quantityMeasurementUnit: new FormControl("1", [Validators.required]),
-          quantity: new FormControl(0, [Validators.required]),
-          price: new FormControl(0, [Validators.required]),
-        })
-      );
     }
   }
 
@@ -131,16 +119,15 @@ export class GroceryListComponent implements OnInit {
     return (this.groceryListForm.get('items') as FormArray).controls;
   }
 
-  addItem(): void {
+  addUserGroceryListItem(): void {
     (this.groceryListForm.get('items') as FormArray).push(
       new FormGroup({
         name: new FormControl('', [Validators.required]),
         description: new FormControl(''),
-        totalPrice: new FormControl(0),
         rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-        rateMeasurementUnit: new FormControl("1", [Validators.required]),
+        rateMeasurementUnit: new FormControl('1', [Validators.required]),
         rate: new FormControl(0, [Validators.required]),
-        quantityMeasurementUnit: new FormControl("1", [Validators.required]),
+        quantityMeasurementUnit: new FormControl('1', [Validators.required]),
         quantity: new FormControl(0, [Validators.required]),
         price: new FormControl(0, [Validators.required]),
       })
@@ -207,20 +194,70 @@ export class GroceryListComponent implements OnInit {
     );
   }
 
-  async onSubmit(): Promise<void> {
-    const groceryListForm = this.groceryListForm.value;
+  createUserGroceryList() {
+    this.groceryListService
+      .createUserGroceryList({
+        name: this.groceryListForm.controls['name'].value,
+        description: this.groceryListForm.controls['description'].value,
+        total_price: this.groceryListForm.controls['totalPrice'].value,
+      })
+      .subscribe({
+        next: (response: UserGroceryListResponse) => {
+          if (
+            (this.groceryListForm.controls['items'] as FormArray).length === 0
+          ) {
+            this.router.navigate(['/']);
+          }
 
-    const groceryListId = await this.groceryListService.addList({
-      name: groceryListForm.name,
-      description: groceryListForm.description,
-    });
+          const groceryListServiceId = response.id;
 
-    for (let i = 1; i < groceryListForm.length; i++) {
-      groceryListForm[i] = { groceryListId, ...groceryListForm[i] };
-    }
+          const groceryListItemsFormArray = this.groceryListForm.controls[
+            'items'
+          ] as FormArray;
 
-    const itemsAdditionStatus = await this.groceryListService.addListItems(
-      groceryListForm.items
-    );
+          const groceryListItems = (
+            groceryListItemsFormArray.controls[0] as FormGroup
+          ).controls['name'].value;
+
+          for (let index = 0; index < groceryListItems.length; index++) {
+            const groceryListItemsFormGroupControls = (
+              groceryListItemsFormArray.controls[index] as FormGroup
+            ).controls;
+
+            this.groceryListService
+              .createUserGroceryListItem(groceryListServiceId, {
+                name: groceryListItemsFormGroupControls['name'].value,
+                description: groceryListItemsFormGroupControls['description']
+                  .value
+                  ? groceryListItemsFormGroupControls['description'].value
+                  : '',
+                rate_measurement_quantity:
+                  groceryListItemsFormGroupControls['rateMeasurementQuantity']
+                    .value,
+                rate_measurement_unit: this.measurementUnits.find(
+                  (obj) =>
+                    obj.id ===
+                    groceryListItemsFormGroupControls['rateMeasurementUnit']
+                      .value
+                )!.value,
+                rate: groceryListItemsFormGroupControls['rate'].value,
+                quantity_measurement_unit: this.measurementUnits.find(
+                  (obj) =>
+                    obj.id ===
+                    groceryListItemsFormGroupControls['quantityMeasurementUnit']
+                      .value
+                )!.value,
+                quantity: groceryListItemsFormGroupControls['quantity'].value,
+                price: groceryListItemsFormGroupControls['price'].value,
+                grocery_list: groceryListServiceId,
+              })
+              .subscribe();
+          }
+
+          this.router.navigate(['/']);
+        },
+      });
   }
+
+  updateUserGroceryList() {}
 }
