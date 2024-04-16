@@ -15,8 +15,7 @@ import {
 } from '../../services/grocery-list.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
-import { switchMap, of, map } from 'rxjs';
-import { error } from 'node:console';
+import { map } from 'rxjs';
 
 interface MeasurementUnit {
   id: string;
@@ -69,6 +68,63 @@ export class GroceryListComponent implements OnInit {
             totalPrice: new FormControl(response.total_price),
             items: new FormArray([]),
           });
+
+          this.groceryListService
+            .getUserGroceryListItems(response.id)
+            .pipe(
+              map((response: UserGroceryListItemResponse[]) => {
+                return response.map((item) => {
+                  return new FormGroup({
+                    name: new FormControl(item.name, [Validators.required]),
+                    description: new FormControl(item.description),
+                    rateMeasurementQuantity: new FormControl(
+                      item.rate_measurement_quantity,
+                      [Validators.required]
+                    ),
+                    rateMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.rate_measurement_unit
+                      )!.id,
+                      [Validators.required]
+                    ),
+                    rate: new FormControl(item.rate, [Validators.required]),
+                    quantityMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.quantity_measurement_unit
+                      )!.id,
+                      [Validators.required]
+                    ),
+                    quantity: new FormControl(item.quantity, [
+                      Validators.required,
+                    ]),
+                    pricerice: new FormControl(item.price, [
+                      Validators.required,
+                    ]),
+                  });
+                });
+              })
+            )
+            .subscribe({
+              next: (formGroups: FormGroup[]) => {
+                if (this.groceryListForm) {
+                  formGroups.forEach((formGroup) =>
+                    (this.groceryListForm.get('items') as FormArray).push(
+                      formGroup
+                    )
+                  );
+                }
+              },
+              error: (err) => {
+                this.groceryListFormStatus = 'SubmissionError';
+                this.groceryListFormMessage =
+                  'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+              },
+            });
+        },
+        error: (err) => {
+          this.groceryListFormStatus = 'SubmissionError';
+          this.groceryListFormMessage =
+            'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
         },
       });
     } else {
@@ -78,49 +134,6 @@ export class GroceryListComponent implements OnInit {
         totalPrice: new FormControl(0),
         items: new FormArray([]),
       });
-    }
-
-    if (this.id) {
-      this.groceryListService
-        .getUserGroceryListItems(this.id)
-        .pipe(
-          map((response: UserGroceryListItemResponse[]) => {
-            return response.map((item) => {
-              return new FormGroup({
-                name: new FormControl(item.name, [Validators.required]),
-                description: new FormControl(item.description),
-                rateMeasurementQuantity: new FormControl(
-                  item.rate_measurement_quantity,
-                  [Validators.required]
-                ),
-                rateMeasurementUnit: new FormControl(
-                  this.measurementUnits.find(
-                    (obj) => obj.value === item.rate_measurement_unit
-                  )!.id,
-                  [Validators.required]
-                ),
-                rate: new FormControl(item.rate, [Validators.required]),
-                quantityMeasurementUnit: new FormControl(
-                  this.measurementUnits.find(
-                    (obj) => obj.value === item.quantity_measurement_unit
-                  )!.id,
-                  [Validators.required]
-                ),
-                quantity: new FormControl(item.quantity, [Validators.required]),
-                pricerice: new FormControl(item.price, [Validators.required]),
-              });
-            });
-          })
-        )
-        .subscribe({
-          next: (formGroups: FormGroup[]) => {
-            if (this.groceryListForm) {
-              formGroups.forEach((formGroup) =>
-                (this.groceryListForm.get('items') as FormArray).push(formGroup)
-              );
-            }
-          },
-        });
     }
   }
 
@@ -285,6 +298,6 @@ export class GroceryListComponent implements OnInit {
   }
 
   updateUserGroceryList() {
-    console.log(1)
+    console.log(1);
   }
 }

@@ -109,7 +109,7 @@ export class GroceryListService {
   }
 
   getUserGroceryListItems(
-    id: string
+    id: number
   ): Observable<UserGroceryListItemResponse[]> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
