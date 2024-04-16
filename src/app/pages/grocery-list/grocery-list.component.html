@@ -13,13 +13,17 @@
 
 <br />
 
-<div class="row">
-  <div class="col"></div>
+@if (groceryListFormStatus === 'NotSubmitted' || groceryListFormStatus ===
+'SubmissionError') { @if (groceryListFormStatus === 'SubmissionError') {
+<div class="alert alert-danger" role="alert">
+  <span class="alert-icon"><span class="visually-hidden">Error</span></span>
+  <p>{{ groceryListFormMessage }}></p>
 </div>
-@if (groceryListForm) {
+
+} @if (groceryListForm) {
 <form
   [formGroup]="groceryListForm"
-  (ngSubmit)="id ? createUserGroceryList() : updateUserGroceryList()"
+  (ngSubmit)="id ? updateUserGroceryList() : createUserGroceryList()"
 >
   <div class="mb-3">
     <label class="form-label">Name</label>
@@ -200,4 +204,12 @@
     </button>
   </div>
 </form>
+} } @else if (groceryListFormStatus === 'InProgress') {
+<div class="row align-items-center text-center" style="min-height: 70vh">
+  <div class="col-12">
+    <div class="spinner-border spinner-border-lg text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+</div>
 }

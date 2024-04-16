@@ -16,6 +16,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import { switchMap, of, map } from 'rxjs';
+import { error } from 'node:console';
 
 interface MeasurementUnit {
   id: string;
@@ -39,6 +40,14 @@ export class GroceryListComponent implements OnInit {
   id: string | null | undefined;
 
   groceryListForm!: FormGroup;
+
+  groceryListFormStatus:
+    | 'NotSubmitted'
+    | 'Submitted'
+    | 'SubmissionError'
+    | 'InProgress' = 'NotSubmitted';
+
+  groceryListFormMessage!: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -195,69 +204,87 @@ export class GroceryListComponent implements OnInit {
   }
 
   createUserGroceryList() {
-    this.groceryListService
-      .createUserGroceryList({
-        name: this.groceryListForm.controls['name'].value,
-        description: this.groceryListForm.controls['description'].value,
-        total_price: this.groceryListForm.controls['totalPrice'].value,
-      })
-      .subscribe({
-        next: (response: UserGroceryListResponse) => {
-          if (
-            (this.groceryListForm.controls['items'] as FormArray).length === 0
-          ) {
+    if (this.groceryListForm.valid) {
+      this.groceryListFormStatus = 'InProgress';
+
+      this.groceryListService
+        .createUserGroceryList({
+          name: this.groceryListForm.controls['name'].value,
+          description: this.groceryListForm.controls['description'].value,
+          total_price: this.groceryListForm.controls['totalPrice'].value,
+        })
+        .subscribe({
+          next: (response: UserGroceryListResponse) => {
+            if (
+              (this.groceryListForm.controls['items'] as FormArray).length === 0
+            ) {
+              this.router.navigate(['/']);
+            }
+
+            const groceryListServiceId = response.id;
+
+            const groceryListItemsFormArray = this.groceryListForm.controls[
+              'items'
+            ] as FormArray;
+
+            const groceryListItems = (
+              groceryListItemsFormArray.controls[0] as FormGroup
+            ).controls['name'].value;
+
+            for (let index = 0; index < groceryListItems.length; index++) {
+              const groceryListItemsFormGroupControls = (
+                groceryListItemsFormArray.controls[index] as FormGroup
+              ).controls;
+
+              this.groceryListService
+                .createUserGroceryListItem(groceryListServiceId, {
+                  name: groceryListItemsFormGroupControls['name'].value,
+                  description: groceryListItemsFormGroupControls['description']
+                    .value
+                    ? groceryListItemsFormGroupControls['description'].value
+                    : '',
+                  rate_measurement_quantity:
+                    groceryListItemsFormGroupControls['rateMeasurementQuantity']
+                      .value,
+                  rate_measurement_unit: this.measurementUnits.find(
+                    (obj) =>
+                      obj.id ===
+                      groceryListItemsFormGroupControls['rateMeasurementUnit']
+                        .value
+                  )!.value,
+                  rate: groceryListItemsFormGroupControls['rate'].value,
+                  quantity_measurement_unit: this.measurementUnits.find(
+                    (obj) =>
+                      obj.id ===
+                      groceryListItemsFormGroupControls[
+                        'quantityMeasurementUnit'
+                      ].value
+                  )!.value,
+                  quantity: groceryListItemsFormGroupControls['quantity'].value,
+                  price: groceryListItemsFormGroupControls['price'].value,
+                  grocery_list: groceryListServiceId,
+                })
+                .subscribe({
+                  error: (err) => {
+                    this.groceryListFormStatus = 'SubmissionError';
+                    this.groceryListFormMessage =
+                      'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+                  },
+                });
+            }
+
             this.router.navigate(['/']);
-          }
-
-          const groceryListServiceId = response.id;
-
-          const groceryListItemsFormArray = this.groceryListForm.controls[
-            'items'
-          ] as FormArray;
-
-          const groceryListItems = (
-            groceryListItemsFormArray.controls[0] as FormGroup
-          ).controls['name'].value;
-
-          for (let index = 0; index < groceryListItems.length; index++) {
-            const groceryListItemsFormGroupControls = (
-              groceryListItemsFormArray.controls[index] as FormGroup
-            ).controls;
-
-            this.groceryListService
-              .createUserGroceryListItem(groceryListServiceId, {
-                name: groceryListItemsFormGroupControls['name'].value,
-                description: groceryListItemsFormGroupControls['description']
-                  .value
-                  ? groceryListItemsFormGroupControls['description'].value
-                  : '',
-                rate_measurement_quantity:
-                  groceryListItemsFormGroupControls['rateMeasurementQuantity']
-                    .value,
-                rate_measurement_unit: this.measurementUnits.find(
-                  (obj) =>
-                    obj.id ===
-                    groceryListItemsFormGroupControls['rateMeasurementUnit']
-                      .value
-                )!.value,
-                rate: groceryListItemsFormGroupControls['rate'].value,
-                quantity_measurement_unit: this.measurementUnits.find(
-                  (obj) =>
-                    obj.id ===
-                    groceryListItemsFormGroupControls['quantityMeasurementUnit']
-                      .value
-                )!.value,
-                quantity: groceryListItemsFormGroupControls['quantity'].value,
-                price: groceryListItemsFormGroupControls['price'].value,
-                grocery_list: groceryListServiceId,
-              })
-              .subscribe();
-          }
-
-          this.router.navigate(['/']);
-        },
-      });
+          },
+          error: (err) => {
+            this.groceryListFormStatus = 'SubmissionError';
+            this.groceryListFormMessage =
+              'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+          },
+        });
+    }
   }
 
-  updateUserGroceryList() {}
+  updateUserGroceryList() {
+    console.log(1)
+  }
 }
