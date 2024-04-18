@@ -112,6 +112,23 @@ export class GroceryListService {
     );
   }
 
+  deleteUserGroceryList(
+    id: string
+  ): Observable<void> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.delete<void>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${id}`,
+      {
+        headers: headers,
+      }
+    );
+  }
+
   exportUserGroceryListSummary(
     id: string
   ): Observable<UserGroceryListSummaryExportResponse> {

@@ -306,7 +306,15 @@ export class GroceryListComponent implements OnInit {
     console.log(1);
   }
 
-  deleteUserGroceryList() {}
+  deleteUserGroceryList() {
+    if (this.id) {
+      this.groceryListService.deleteUserGroceryList(this.id).subscribe({
+        next: () => {
+          this.router.navigate(['/']);
+        },
+      });
+    }
+  }
 
   exportUserGroceryListSummary() {
     if (this.id) {
