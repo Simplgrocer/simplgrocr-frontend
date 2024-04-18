@@ -19,7 +19,7 @@ export interface GroceryListItemPayload {
   quantity_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
   quantity: number;
   price: number;
-  grocery_list: number
+  grocery_list: number;
 }
 
 export interface UserGroceryListResponse {
@@ -30,6 +30,10 @@ export interface UserGroceryListResponse {
   created_at: string;
   updated_at: string;
   user: number;
+}
+
+export interface UserGroceryListSummaryExportResponse {
+  download_url: string;
 }
 
 export interface UserGroceryListItemResponse {
@@ -102,6 +106,24 @@ export class GroceryListService {
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/`,
       groceryList,
+      {
+        headers: headers,
+      }
+    );
+  }
+
+  exportUserGroceryListSummary(
+    id: string
+  ): Observable<UserGroceryListSummaryExportResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.post<UserGroceryListSummaryExportResponse>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${id}/summary/`,
+      {},
       {
         headers: headers,
       }

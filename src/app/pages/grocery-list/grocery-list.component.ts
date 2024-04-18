@@ -12,6 +12,7 @@ import {
   GroceryListService,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
+  UserGroceryListSummaryExportResponse,
 } from '../../services/grocery-list.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
@@ -47,6 +48,10 @@ export class GroceryListComponent implements OnInit {
     | 'InProgress' = 'NotSubmitted';
 
   groceryListFormMessage!: string;
+
+  userGroceryListSummaryExportStatus:
+    | 'NotExported'
+    | 'Exported' = 'NotExported';
 
   constructor(
     private route: ActivatedRoute,
@@ -299,5 +304,17 @@ export class GroceryListComponent implements OnInit {
 
   updateUserGroceryList() {
     console.log(1);
+  }
+
+  deleteUserGroceryList() {}
+
+  exportUserGroceryListSummary() {
+    if (this.id) {
+      this.groceryListService.exportUserGroceryListSummary(this.id).subscribe({
+        next: (response: UserGroceryListSummaryExportResponse) => {
+          window.open(response.download_url, '_blank');
+        },
+      });
+    }
   }
 }
