@@ -8,15 +8,12 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { Router } from '@angular/router';
+import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import {
   GroceryListService,
-  UserGroceryListItemResponse,
   UserGroceryListResponse,
-  UserGroceryListSummaryExportResponse,
 } from '../../services/grocery-list.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ContentEditableDirective } from '../../directives/content-editable.directive';
-import { map } from 'rxjs';
 
 interface MeasurementUnit {
   id: string;
@@ -24,20 +21,18 @@ interface MeasurementUnit {
 }
 
 @Component({
-  selector: 'app-grocery-list',
+  selector: 'app-grocery-list-create',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ContentEditableDirective],
-  templateUrl: './grocery-list.component.html',
-  styleUrl: './grocery-list.component.css',
+  templateUrl: './grocery-list-create.component.html',
+  styleUrl: './grocery-list-create.component.css',
 })
-export class GroceryListComponent implements OnInit {
+export class GroceryListCreateComponent implements OnInit {
   measurementUnits: MeasurementUnit[] = [
     { id: '1', value: 'Unit' },
     { id: '2', value: 'Kilogram' },
     { id: '3', value: 'Gram' },
   ];
-
-  id: string | null | undefined;
 
   groceryListForm!: FormGroup;
 
@@ -49,100 +44,21 @@ export class GroceryListComponent implements OnInit {
 
   groceryListFormMessage!: string;
 
-  userGroceryListSummaryExportStatus:
-    | 'NotExported'
-    | 'Exported' = 'NotExported';
-
   constructor(
-    private route: ActivatedRoute,
     private groceryListService: GroceryListService,
     private router: Router
   ) {}
 
   ngOnInit() {
-    try {
-      this.id = this.route.snapshot.url[1].path;
-    } catch (error) {}
-
-    if (this.id) {
-      this.groceryListService.getUserGroceryList(this.id).subscribe({
-        next: (response: UserGroceryListResponse) => {
-          this.groceryListForm = new FormGroup({
-            name: new FormControl(response.name, [Validators.required]),
-            description: new FormControl(response.description),
-            totalPrice: new FormControl(response.total_price),
-            items: new FormArray([]),
-          });
-
-          this.groceryListService
-            .getUserGroceryListItems(response.id)
-            .pipe(
-              map((response: UserGroceryListItemResponse[]) => {
-                return response.map((item) => {
-                  return new FormGroup({
-                    name: new FormControl(item.name, [Validators.required]),
-                    description: new FormControl(item.description),
-                    rateMeasurementQuantity: new FormControl(
-                      item.rate_measurement_quantity,
-                      [Validators.required]
-                    ),
-                    rateMeasurementUnit: new FormControl(
-                      this.measurementUnits.find(
-                        (obj) => obj.value === item.rate_measurement_unit
-                      )!.id,
-                      [Validators.required]
-                    ),
-                    rate: new FormControl(item.rate, [Validators.required]),
-                    quantityMeasurementUnit: new FormControl(
-                      this.measurementUnits.find(
-                        (obj) => obj.value === item.quantity_measurement_unit
-                      )!.id,
-                      [Validators.required]
-                    ),
-                    quantity: new FormControl(item.quantity, [
-                      Validators.required,
-                    ]),
-                    pricerice: new FormControl(item.price, [
-                      Validators.required,
-                    ]),
-                  });
-                });
-              })
-            )
-            .subscribe({
-              next: (formGroups: FormGroup[]) => {
-                if (this.groceryListForm) {
-                  formGroups.forEach((formGroup) =>
-                    (this.groceryListForm.get('items') as FormArray).push(
-                      formGroup
-                    )
-                  );
-                }
-              },
-              error: (err) => {
-                this.groceryListFormStatus = 'SubmissionError';
-                this.groceryListFormMessage =
-                  'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-              },
-            });
-        },
-        error: (err) => {
-          this.groceryListFormStatus = 'SubmissionError';
-          this.groceryListFormMessage =
-            'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-        },
-      });
-    } else {
-      this.groceryListForm = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        totalPrice: new FormControl(0),
-        items: new FormArray([]),
-      });
-    }
+    this.groceryListForm = new FormGroup({
+      name: new FormControl('', [Validators.required]),
+      description: new FormControl(''),
+      totalPrice: new FormControl(0),
+      items: new FormArray([]),
+    });
   }
 
-  getItemsArrayControls(): AbstractControl<any, any>[] {
+  getUserGroceryListItemsFormArrayControls(): AbstractControl<any, any>[] {
     return (this.groceryListForm.get('items') as FormArray).controls;
   }
 
@@ -161,7 +77,7 @@ export class GroceryListComponent implements OnInit {
     );
   }
 
-  deleteItem(index: number): void {
+  deleteUserGroceryListItem(index: number): void {
     (this.groceryListForm.get('items') as FormArray).removeAt(index);
   }
 
@@ -299,30 +215,6 @@ export class GroceryListComponent implements OnInit {
               'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
           },
         });
-    }
-  }
-
-  updateUserGroceryList() {
-    console.log(1);
-  }
-
-  deleteUserGroceryList() {
-    if (this.id) {
-      this.groceryListService.deleteUserGroceryList(this.id).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-      });
-    }
-  }
-
-  exportUserGroceryListSummary() {
-    if (this.id) {
-      this.groceryListService.exportUserGroceryListSummary(this.id).subscribe({
-        next: (response: UserGroceryListSummaryExportResponse) => {
-          window.open(response.download_url, '_blank');
-        },
-      });
     }
   }
 }
