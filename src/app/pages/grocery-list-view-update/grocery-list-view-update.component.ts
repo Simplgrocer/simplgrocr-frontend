@@ -72,86 +72,75 @@ export class GroceryListViewUpdateComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    try {
-      this.id = this.route.snapshot.url[1].path;
-    } catch (error) {}
+    this.id = this.route.snapshot.url[1].path;
 
-    if (this.id) {
-      this.groceryListService.getUserGroceryList(this.id).subscribe({
-        next: (response: UserGroceryListResponse) => {
-          this.groceryListForm = new FormGroup({
-            name: new FormControl(response.name, [Validators.required]),
-            description: new FormControl(response.description),
-            totalPrice: new FormControl(response.total_price),
-            items: new FormArray([]),
-          });
+    this.groceryListService.getUserGroceryList(this.id).subscribe({
+      next: (response: UserGroceryListResponse) => {
+        this.groceryListForm = new FormGroup({
+          name: new FormControl(response.name, [Validators.required]),
+          description: new FormControl(response.description),
+          totalPrice: new FormControl(response.total_price),
+          items: new FormArray([]),
+        });
 
-          this.groceryListService
-            .getUserGroceryListItems(response.id)
-            .pipe(
-              map((response: UserGroceryListItemResponse[]) => {
-                return response.map((item) => {
-                  return new FormGroup({
-                    name: new FormControl(item.name, [Validators.required]),
-                    description: new FormControl(item.description),
-                    rateMeasurementQuantity: new FormControl(
-                      item.rate_measurement_quantity,
-                      [Validators.required]
-                    ),
-                    rateMeasurementUnit: new FormControl(
-                      this.measurementUnits.find(
-                        (obj) => obj.value === item.rate_measurement_unit
-                      )!.id,
-                      [Validators.required]
-                    ),
-                    rate: new FormControl(item.rate, [Validators.required]),
-                    quantityMeasurementUnit: new FormControl(
-                      this.measurementUnits.find(
-                        (obj) => obj.value === item.quantity_measurement_unit
-                      )!.id,
-                      [Validators.required]
-                    ),
-                    quantity: new FormControl(item.quantity, [
-                      Validators.required,
-                    ]),
-                    pricerice: new FormControl(item.price, [
-                      Validators.required,
-                    ]),
-                  });
+        this.groceryListService
+          .getUserGroceryListItems(response.id)
+          .pipe(
+            map((response: UserGroceryListItemResponse[]) => {
+              return response.map((item) => {
+                return new FormGroup({
+                  name: new FormControl(item.name, [Validators.required]),
+                  description: new FormControl(item.description),
+                  rateMeasurementQuantity: new FormControl(
+                    item.rate_measurement_quantity,
+                    [Validators.required]
+                  ),
+                  rateMeasurementUnit: new FormControl(
+                    this.measurementUnits.find(
+                      (obj) => obj.value === item.rate_measurement_unit
+                    )!.id,
+                    [Validators.required]
+                  ),
+                  rate: new FormControl(item.rate, [Validators.required]),
+                  quantityMeasurementUnit: new FormControl(
+                    this.measurementUnits.find(
+                      (obj) => obj.value === item.quantity_measurement_unit
+                    )!.id,
+                    [Validators.required]
+                  ),
+                  quantity: new FormControl(item.quantity, [
+                    Validators.required,
+                  ]),
+                  pricerice: new FormControl(item.price, [
+                    Validators.required,
+                  ]),
                 });
-              })
-            )
-            .subscribe({
-              next: (formGroups: FormGroup[]) => {
-                if (this.groceryListForm) {
-                  formGroups.forEach((formGroup) =>
-                    (this.groceryListForm.get('items') as FormArray).push(
-                      formGroup
-                    )
-                  );
-                }
-              },
-              error: (err) => {
-                this.groceryListFormStatus = 'SubmissionError';
-                this.groceryListFormMessage =
-                  'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-              },
-            });
-        },
-        error: (err) => {
-          this.groceryListFormStatus = 'SubmissionError';
-          this.groceryListFormMessage =
-            'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-        },
-      });
-    } else {
-      this.groceryListForm = new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        totalPrice: new FormControl(0),
-        items: new FormArray([]),
-      });
-    }
+              });
+            })
+          )
+          .subscribe({
+            next: (formGroups: FormGroup[]) => {
+              if (this.groceryListForm) {
+                formGroups.forEach((formGroup) =>
+                  (this.groceryListForm.get('items') as FormArray).push(
+                    formGroup
+                  )
+                );
+              }
+            },
+            error: (err) => {
+              this.groceryListFormStatus = 'SubmissionError';
+              this.groceryListFormMessage =
+                'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+            },
+          });
+      },
+      error: (err) => {
+        this.groceryListFormStatus = 'SubmissionError';
+        this.groceryListFormMessage =
+          'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+      },
+    });
   }
 
   getItemsArrayControls(): AbstractControl<any, any>[] {
@@ -241,108 +230,23 @@ export class GroceryListViewUpdateComponent implements OnInit {
     );
   }
 
-  createUserGroceryList() {
-    if (this.groceryListForm.valid) {
-      this.groceryListFormStatus = 'InProgress';
-
-      this.groceryListService
-        .createUserGroceryList({
-          name: this.groceryListForm.controls['name'].value,
-          description: this.groceryListForm.controls['description'].value,
-          total_price: this.groceryListForm.controls['totalPrice'].value,
-        })
-        .subscribe({
-          next: (response: UserGroceryListResponse) => {
-            if (
-              (this.groceryListForm.controls['items'] as FormArray).length === 0
-            ) {
-              this.router.navigate(['/']);
-            }
-
-            const groceryListServiceId = response.id;
-
-            const groceryListItemsFormArray = this.groceryListForm.controls[
-              'items'
-            ] as FormArray;
-
-            const groceryListItems = (
-              groceryListItemsFormArray.controls[0] as FormGroup
-            ).controls['name'].value;
-
-            for (let index = 0; index < groceryListItems.length; index++) {
-              const groceryListItemsFormGroupControls = (
-                groceryListItemsFormArray.controls[index] as FormGroup
-              ).controls;
-
-              this.groceryListService
-                .createUserGroceryListItem(groceryListServiceId, {
-                  name: groceryListItemsFormGroupControls['name'].value,
-                  description: groceryListItemsFormGroupControls['description']
-                    .value
-                    ? groceryListItemsFormGroupControls['description'].value
-                    : '',
-                  rate_measurement_quantity:
-                    groceryListItemsFormGroupControls['rateMeasurementQuantity']
-                      .value,
-                  rate_measurement_unit: this.measurementUnits.find(
-                    (obj) =>
-                      obj.id ===
-                      groceryListItemsFormGroupControls['rateMeasurementUnit']
-                        .value
-                  )!.value,
-                  rate: groceryListItemsFormGroupControls['rate'].value,
-                  quantity_measurement_unit: this.measurementUnits.find(
-                    (obj) =>
-                      obj.id ===
-                      groceryListItemsFormGroupControls[
-                        'quantityMeasurementUnit'
-                      ].value
-                  )!.value,
-                  quantity: groceryListItemsFormGroupControls['quantity'].value,
-                  price: groceryListItemsFormGroupControls['price'].value,
-                  grocery_list: groceryListServiceId,
-                })
-                .subscribe({
-                  error: (err) => {
-                    this.groceryListFormStatus = 'SubmissionError';
-                    this.groceryListFormMessage =
-                      'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-                  },
-                });
-            }
-
-            this.router.navigate(['/']);
-          },
-          error: (err) => {
-            this.groceryListFormStatus = 'SubmissionError';
-            this.groceryListFormMessage =
-              'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-          },
-        });
-    }
-  }
-
   updateUserGroceryList() {
     console.log(1);
   }
 
   deleteUserGroceryList() {
-    if (this.id) {
-      this.groceryListService.deleteUserGroceryList(this.id).subscribe({
-        next: () => {
-          this.router.navigate(['/']);
-        },
-      });
-    }
+    this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
+      next: () => {
+        this.router.navigate(['/']);
+      },
+    });
   }
 
   exportUserGroceryListSummary() {
-    if (this.id) {
-      this.groceryListService.exportUserGroceryListSummary(this.id).subscribe({
-        next: (response: UserGroceryListSummaryExportResponse) => {
-          window.open(response.download_url, '_blank');
-        },
-      });
-    }
+    this.groceryListService.exportUserGroceryListSummary(this.id!).subscribe({
+      next: (response: UserGroceryListSummaryExportResponse) => {
+        window.open(response.download_url, '_blank');
+      },
+    });
   }
 }
