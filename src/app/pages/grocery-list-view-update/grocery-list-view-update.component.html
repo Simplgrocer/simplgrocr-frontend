@@ -34,7 +34,7 @@
   } @if (groceryListForm) {
   <form
     [formGroup]="groceryListForm"
-    (ngSubmit)="id ? updateUserGroceryList() : createUserGroceryList()"
+    (ngSubmit)="updateUserGroceryList()"
   >
     <div class="mb-3">
       <label class="form-label">Name</label>
