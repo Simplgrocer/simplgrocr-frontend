@@ -4,13 +4,19 @@ import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AuthService } from './auth.service';
 
-export interface GroceryListPayload {
+export interface GroceryListCreationPayload {
   name: string;
   description?: string;
   total_price: number;
 }
 
-export interface GroceryListItemPayload {
+export interface GroceryListUpdationPayload {
+  name?: string;
+  description?: string;
+  total_price?: number;
+}
+
+export interface GroceryListItemCreationPayload {
   name: string;
   description?: string;
   rate_measurement_quantity: number;
@@ -95,7 +101,7 @@ export class GroceryListService {
   }
 
   createUserGroceryList(
-    groceryList: GroceryListPayload
+    groceryList: GroceryListCreationPayload
   ): Observable<UserGroceryListResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
@@ -112,9 +118,23 @@ export class GroceryListService {
     );
   }
 
-  deleteUserGroceryList(
-    id: string
-  ): Observable<void> {
+  updatePatchUserGroceryList(id: string, groceryList: GroceryListUpdationPayload): Observable<UserGroceryListResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.patch<UserGroceryListResponse>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${id}/`,
+      groceryList,
+      {
+        headers: headers,
+      }
+    );
+  }
+
+  deleteUserGroceryList(id: string): Observable<void> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
@@ -165,8 +185,8 @@ export class GroceryListService {
   }
 
   createUserGroceryListItem(
-    groceryListID: number,
-    groceryListItem: GroceryListItemPayload
+    groceryListID: string,
+    groceryListItem: GroceryListItemCreationPayload
   ): Observable<UserGroceryListItemResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
@@ -177,6 +197,24 @@ export class GroceryListService {
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/${groceryListID}/items/`,
       groceryListItem,
+      {
+        headers: headers,
+      }
+    );
+  }
+
+  deleteUserGroceryListItem(
+    groceryListID: string,
+    groceryListItemID: string
+  ): Observable<void> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.delete<void>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${groceryListID}/items/${groceryListItemID}/`,
       {
         headers: headers,
       }

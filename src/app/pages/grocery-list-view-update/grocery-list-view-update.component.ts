@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import {
+  GroceryListItemCreationPayload,
   GroceryListService,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
@@ -43,7 +44,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
     { id: '3', value: 'Gram' },
   ];
 
-  id: string | null | undefined;
+  id = '';
 
   groceryListForm!: FormGroup;
 
@@ -57,13 +58,6 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
   userGroceryListSummaryExportStatus: 'NotExported' | 'Exported' =
     'NotExported';
-
-  userGroceryListFormItemsFormGroupChangeActions: UserGroceryListFormItemsFormGroupChangeActions =
-    {
-      added: [],
-      deleted: [],
-      modified: [],
-    };
 
   constructor(
     private route: ActivatedRoute,
@@ -89,6 +83,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
             map((response: UserGroceryListItemResponse[]) => {
               return response.map((item) => {
                 return new FormGroup({
+                  id: new FormControl(item.id),
                   name: new FormControl(item.name, [Validators.required]),
                   description: new FormControl(item.description),
                   rateMeasurementQuantity: new FormControl(
@@ -111,9 +106,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
                   quantity: new FormControl(item.quantity, [
                     Validators.required,
                   ]),
-                  pricerice: new FormControl(item.price, [
-                    Validators.required,
-                  ]),
+                  price: new FormControl(item.price, [Validators.required]),
                 });
               });
             })
@@ -148,30 +141,66 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   addUserGroceryListItem(): void {
-    (this.groceryListForm.get('items') as FormArray).push(
-      new FormGroup({
-        name: new FormControl('', [Validators.required]),
-        description: new FormControl(''),
-        rateMeasurementQuantity: new FormControl(0, [Validators.required]),
-        rateMeasurementUnit: new FormControl('1', [Validators.required]),
-        rate: new FormControl(0, [Validators.required]),
-        quantityMeasurementUnit: new FormControl('1', [Validators.required]),
-        quantity: new FormControl(0, [Validators.required]),
-        price: new FormControl(0, [Validators.required]),
+    this.groceryListService
+      .createUserGroceryListItem(this.id, {
+        name: '',
+        description: '',
+        rate_measurement_quantity: 0,
+        rate_measurement_unit: 'Unit',
+        rate: 0,
+        quantity_measurement_unit: 'Unit',
+        quantity: 0,
+        price: 0,
+        grocery_list: this.id as unknown as number,
       })
-    );
+      .subscribe({
+        next: (response: UserGroceryListItemResponse) => {
+          (this.groceryListForm.get('items') as FormArray).push(
+            new FormGroup({
+              id: new FormControl(response.id),
+              name: new FormControl('', [Validators.required]),
+              description: new FormControl(''),
+              rateMeasurementQuantity: new FormControl(0, [
+                Validators.required,
+              ]),
+              rateMeasurementUnit: new FormControl('1', [Validators.required]),
+              rate: new FormControl(0, [Validators.required]),
+              quantityMeasurementUnit: new FormControl('1', [
+                Validators.required,
+              ]),
+              quantity: new FormControl(0, [Validators.required]),
+              price: new FormControl(0, [Validators.required]),
+            })
+          );
+        },
+      });
   }
 
-  deleteItem(index: number): void {
-    if (this.id) {
-      this.userGroceryListFormItemsFormGroupChangeActions.deleted.push(
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      );
-    }
+  deleteUserGroceryListItem(index: number): void {
+    const userGroceryListItemsFormArray = this.groceryListForm.get(
+      'items'
+    ) as FormArray;
+    const id = (userGroceryListItemsFormArray.controls[index] as FormGroup)
+      .controls['id'].value;
+    const oldPrice = (
+      userGroceryListItemsFormArray.controls[index] as FormGroup
+    ).controls['price'].value;
 
-    (this.groceryListForm.get('items') as FormArray).removeAt(index);
+    this.groceryListService.deleteUserGroceryListItem(this.id, id).subscribe({
+      next: () => {
+        (this.groceryListForm.get('items') as FormArray).removeAt(index);
+
+        this.groceryListForm.controls['totalPrice'].setValue(
+          this.groceryListForm.controls['totalPrice'].value - oldPrice
+        );
+
+        this.groceryListService
+          .updatePatchUserGroceryList(this.id, {
+            total_price: this.groceryListForm.controls['totalPrice'].value,
+          })
+          .subscribe({});
+      },
+    });
   }
 
   updateItemPrice(index: number): void {
