@@ -107,6 +107,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
                     Validators.required,
                   ]),
                   price: new FormControl(item.price, [Validators.required]),
+                  update: new FormControl(false),
                 });
               });
             })
@@ -170,6 +171,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
               ]),
               quantity: new FormControl(0, [Validators.required]),
               price: new FormControl(0, [Validators.required]),
+              update: new FormControl(false),
             })
           );
         },
