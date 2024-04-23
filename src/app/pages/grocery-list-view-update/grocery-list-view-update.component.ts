@@ -210,6 +210,26 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   updateItemPrice(index: number): void {
+    console.log((
+      (this.groceryListForm.controls['items'] as FormArray).controls[
+        index
+      ] as FormGroup
+    ).controls['update'].value)
+
+    if (
+      !(
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['update'].value
+    ) {
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['update'].setValue(true);
+    }
+
     const oldTotalPrice = this.groceryListForm.controls['totalPrice'].value;
 
     const oldPrice = (

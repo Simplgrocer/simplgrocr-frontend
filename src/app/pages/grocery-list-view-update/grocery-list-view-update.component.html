@@ -72,7 +72,7 @@
                 type="button"
                 class="btn btn-success"
                 (click)="exportUserGroceryListSummary()"
-                disabled="{{ item.get('update')!.value }}"
+                [disabled]="!item.get('update')!.value"
               >
                 Update
               </button>
@@ -226,9 +226,7 @@
   <br />
 
   <div class="text-end">
-    <button type="submit" class="btn btn-primary">
-      {{ id ? "Update" : "Create" }}
-    </button>
+    <button type="submit" class="btn btn-primary">Update</button>
   </div>
 </form>
 } } @else if (groceryListFormStatus === 'InProgress') {
