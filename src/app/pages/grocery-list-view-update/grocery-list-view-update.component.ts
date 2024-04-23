@@ -182,25 +182,29 @@ export class GroceryListViewUpdateComponent implements OnInit {
     const userGroceryListItemsFormArray = this.groceryListForm.get(
       'items'
     ) as FormArray;
+
     const id = (userGroceryListItemsFormArray.controls[index] as FormGroup)
       .controls['id'].value;
+
     const oldPrice = (
       userGroceryListItemsFormArray.controls[index] as FormGroup
     ).controls['price'].value;
 
     this.groceryListService.deleteUserGroceryListItem(this.id, id).subscribe({
       next: () => {
-        (this.groceryListForm.get('items') as FormArray).removeAt(index);
-
-        this.groceryListForm.controls['totalPrice'].setValue(
-          this.groceryListForm.controls['totalPrice'].value - oldPrice
-        );
-
         this.groceryListService
           .updatePatchUserGroceryList(this.id, {
             total_price: this.groceryListForm.controls['totalPrice'].value,
           })
-          .subscribe({});
+          .subscribe({
+            next: () => {
+              (this.groceryListForm.get('items') as FormArray).removeAt(index);
+
+              this.groceryListForm.controls['totalPrice'].setValue(
+                this.groceryListForm.controls['totalPrice'].value - oldPrice
+              );
+            },
+          });
       },
     });
   }
