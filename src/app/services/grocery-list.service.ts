@@ -16,7 +16,7 @@ export interface GroceryListUpdationPayload {
   total_price?: number;
 }
 
-export interface GroceryListItemCreationPayload {
+export interface GroceryListItemCreationUpdationPayload {
   name: string;
   description?: string;
   rate_measurement_quantity: number;
@@ -118,7 +118,10 @@ export class GroceryListService {
     );
   }
 
-  updatePatchUserGroceryList(id: string, groceryList: GroceryListUpdationPayload): Observable<UserGroceryListResponse> {
+  updatePatchUserGroceryList(
+    id: string,
+    groceryList: GroceryListUpdationPayload
+  ): Observable<UserGroceryListResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
@@ -186,7 +189,7 @@ export class GroceryListService {
 
   createUserGroceryListItem(
     groceryListID: string,
-    groceryListItem: GroceryListItemCreationPayload
+    groceryListItem: GroceryListItemCreationUpdationPayload
   ): Observable<UserGroceryListItemResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
@@ -197,6 +200,26 @@ export class GroceryListService {
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/${groceryListID}/items/`,
       groceryListItem,
+      {
+        headers: headers,
+      }
+    );
+  }
+
+  updatePutUserGroceryListItem(
+    groceryListID: string,
+    groceryListItemID: string,
+    groceryList: GroceryListItemCreationUpdationPayload
+  ): Observable<UserGroceryListItemResponse> {
+    const headers = new HttpHeaders({
+      Authorization: `Token ${this.token}`,
+    });
+
+    return this.httpClient.put<UserGroceryListItemResponse>(
+      `${import.meta.env['NG_APP_API_BASE_URL']}/${
+        import.meta.env['NG_APP_API_PREFIX']
+      }/users/grocery-lists/${groceryListID}/items/${groceryListItemID}/`,
+      groceryList,
       {
         headers: headers,
       }

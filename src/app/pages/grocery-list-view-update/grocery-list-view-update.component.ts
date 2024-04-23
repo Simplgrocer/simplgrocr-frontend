@@ -9,7 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import {
-  GroceryListItemCreationPayload,
+  GroceryListItemCreationUpdationPayload,
   GroceryListService,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
@@ -178,6 +178,54 @@ export class GroceryListViewUpdateComponent implements OnInit {
       });
   }
 
+  updateUserGroceryListItem(index: number): void {
+    this.groceryListFormStatus = 'InProgress';
+
+    const userGroceryListItemsFormArray = this.groceryListForm.get(
+      'items'
+    ) as FormArray;
+
+    const userGroceryListItemPayload = (
+      userGroceryListItemsFormArray.controls[index] as FormGroup
+    ).value;
+
+    this.groceryListService
+      .updatePutUserGroceryListItem(this.id, userGroceryListItemPayload.id, {
+        name: userGroceryListItemPayload.name,
+        description: userGroceryListItemPayload.description,
+        rate_measurement_quantity:
+          userGroceryListItemPayload.rateMeasurementQuantity,
+        rate_measurement_unit: this.measurementUnits.find(
+          (obj) => obj.id === userGroceryListItemPayload.rateMeasurementUnit
+        )!.value,
+        rate: userGroceryListItemPayload.rate,
+        quantity_measurement_unit: this.measurementUnits.find(
+          (obj) => obj.id === userGroceryListItemPayload.quantityMeasurementUnit
+        )!.value,
+        quantity: userGroceryListItemPayload.quantity,
+        price: userGroceryListItemPayload.price,
+        grocery_list: this.id as unknown as number,
+      })
+      .subscribe({
+        next: () => {
+          const price = (
+            userGroceryListItemsFormArray.controls[index] as FormGroup
+          ).controls['price'].value;
+
+          this.groceryListService
+            .updatePatchUserGroceryList(this.id, {
+              total_price: this.groceryListForm.controls['totalPrice'].value,
+            })
+            .subscribe({});
+
+          // this.groceryListFormStatus = 'Submitted';
+        },
+        error: () => {
+          // this.groceryListFormStatus = 'SubmissionError';
+        },
+      });
+  }
+
   deleteUserGroceryListItem(index: number): void {
     const userGroceryListItemsFormArray = this.groceryListForm.get(
       'items'
@@ -210,11 +258,13 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   updateItemPrice(index: number): void {
-    console.log((
-      (this.groceryListForm.controls['items'] as FormArray).controls[
-        index
-      ] as FormGroup
-    ).controls['update'].value)
+    console.log(
+      (
+        (this.groceryListForm.controls['items'] as FormArray).controls[
+          index
+        ] as FormGroup
+      ).controls['update'].value
+    );
 
     if (
       !(

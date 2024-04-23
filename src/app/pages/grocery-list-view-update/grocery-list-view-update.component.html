@@ -71,7 +71,7 @@
               <button
                 type="button"
                 class="btn btn-success"
-                (click)="exportUserGroceryListSummary()"
+                (click)="updateUserGroceryListItem(index)"
                 [disabled]="!item.get('update')!.value"
               >
                 Update
