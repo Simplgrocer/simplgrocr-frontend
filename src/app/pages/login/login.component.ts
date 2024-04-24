@@ -56,7 +56,7 @@ export class LoginComponent implements OnInit {
               response.auth_token,
               1,
               '/',
-              'localhost',
+              `${import.meta.env['NG_APP_DOMAIN']}`,
               true, // note: For local testing set secure to false. But for production set it to true.
               'None'
             );
