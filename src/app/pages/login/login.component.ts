@@ -49,13 +49,16 @@ export class LoginComponent implements OnInit {
           next: (response: LoginResponse) => {
             this.loginFormStatus = 'Submitted';
 
+            console.log(response.auth_token)
+
             this.cookieService.set(
               'token',
               response.auth_token,
               1,
               '/',
               'localhost',
-              false // note: For local testing set secure to false. But for production set it to true.
+              true, // note: For local testing set secure to false. But for production set it to true.
+              'None'
             );
 
             let startTime = Date.now();
