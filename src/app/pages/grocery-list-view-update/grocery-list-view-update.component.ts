@@ -179,7 +179,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   updateUserGroceryListItem(index: number): void {
-    this.groceryListFormStatus = 'InProgress';
+    // this.groceryListFormStatus = 'InProgress';
 
     const userGroceryListItemsFormArray = this.groceryListForm.get(
       'items'
