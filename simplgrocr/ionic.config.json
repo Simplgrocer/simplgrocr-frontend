@@ -1,0 +1,7 @@
+{
+  "name": "simplgrocr",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
