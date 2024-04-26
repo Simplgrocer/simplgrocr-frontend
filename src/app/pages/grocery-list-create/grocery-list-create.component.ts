@@ -4,7 +4,7 @@ import {
   FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators
+  Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';

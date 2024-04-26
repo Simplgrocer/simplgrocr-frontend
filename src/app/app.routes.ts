@@ -4,22 +4,18 @@ import { GroceryListCreateComponent } from './pages/grocery-list-create/grocery-
 import { GroceryListViewUpdateComponent } from './pages/grocery-list-view-update/grocery-list-view-update.component';
 import { IndexComponent } from './pages/index/index.component';
 import { LoginComponent } from './pages/login/login.component';
-import { OnboardingComponent } from './pages/onboarding/onboarding.component';
 
 export const routes: Routes = [
   {
     path: '',
     component: IndexComponent,
+    canActivate: [authGuard],
     title: 'Simplgrocr',
-  },
-  {
-    path: 'onboarding',
-    component: OnboardingComponent,
-    title: 'Onboarding',
   },
   {
     path: 'login',
     component: LoginComponent,
+    // canActivate: [authGuard],
     title: 'Login',
   },
   {
