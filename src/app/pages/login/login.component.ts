@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
@@ -5,18 +6,19 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { LoginResponse, LoginService } from '../../services/login.service';
 import { Router } from '@angular/router';
 import { CookieService } from 'ngx-cookie-service';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { FloatLabelModule } from 'primeng/floatlabel';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
-import { CommonModule } from '@angular/common';
+import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { LoginResponse, LoginService } from '../../services/login.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -31,28 +33,23 @@ import { CommonModule } from '@angular/common';
     CardModule,
     DividerModule,
     ToastModule,
-    CommonModule
+    CommonModule,
+    CenteredProgressSpinnerComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  loginFormStatus:
-    | 'NotSubmitted'
-    | 'Submitted'
-    | 'SubmissionError'
-    | 'InProgress' = 'NotSubmitted';
-  loginFormSubmissionButtonLoadingState = false;
-  redirectionTimeout = 5000;
-  redirectionTimeoutDisplay = 5;
+  disableLoginFormSubmission = true;
+  disableInteraction = false;
 
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private cookieService: CookieService,
     private messageService: MessageService,
-    private primengConfig: PrimeNGConfig
+    private primengConfig: PrimeNGConfig,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -62,48 +59,43 @@ export class LoginComponent implements OnInit {
       userName: new FormControl('', [Validators.required]),
       password: new FormControl('', [Validators.required]),
     });
+
+    this.loginForm.statusChanges.subscribe((status) => {
+      if (status === 'VALID') {
+        this.disableLoginFormSubmission = false;
+      } else {
+        this.disableLoginFormSubmission = true;
+      }
+    });
   }
 
   onSubmit(): void {
     if (!this.loginForm.valid) {
     }
 
-    this.loginFormSubmissionButtonLoadingState = true;
-    this.loginFormStatus = 'InProgress';
+    this.disableInteraction = true;
 
     this.loginService
       .login(this.loginForm.value.userName, this.loginForm.value.password)
       .subscribe({
         next: (response: LoginResponse) => {
-          this.loginFormSubmissionButtonLoadingState = false;
+          this.disableInteraction = false;
 
-          this.cookieService.set(
-            'token',
-            response.auth_token,
-            1,
-            '/',
-            `${import.meta.env['NG_APP_DOMAIN']}`,
-            true,
-            'None'
-          );
+          try {
+            this.authService.postLoginProcessor(response.auth_token);
 
-          let startTime = Date.now();
-
-          const interval = setInterval(() => {
-            let currentTime = Date.now();
-            let elapsedTime = currentTime - startTime;
-
-            if (elapsedTime < 5000) {
-              this.redirectionTimeoutDisplay--;
-            } else {
-              this.redirectUponLogin();
-
-              clearInterval(interval);
-            }
-          }, 1000);
+            this.router.navigate(['/']).then(() => window.location.reload());
+          } catch (error) {
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to login',
+            });
+          }
         },
-        error: (err: any) => {
-          this.loginFormSubmissionButtonLoadingState = false;
+        error: (error: any) => {
+          this.disableInteraction = false;
 
           this.messageService.add({
             key: 'tr',
@@ -113,9 +105,5 @@ export class LoginComponent implements OnInit {
           });
         },
       });
-  }
-
-  redirectUponLogin(): void {
-    this.router.navigate(['/']);
   }
 }

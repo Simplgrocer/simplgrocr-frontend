@@ -1,8 +1,23 @@
 <p-menubar>
   <ng-template pTemplate="start">
-      <img class="brand-image" src="assets/logo.png" height="40" class="mr-2" />
+    <img
+      class="brand-image"
+      src="assets/logo.png"
+      height="40"
+      class="mr-2"
+      [style]="{ 'border-radius': '6px' }"
+    />
   </ng-template>
   <ng-template pTemplate="end">
-    <p-button label="Login/Register"></p-button>
+    @if (isAuthenticated) {
+    <p-button
+      label="Logout"
+      (onClick)="logout()"
+      [loading]="logoutButtonLoading"
+    ></p-button>
+    } @else if (!isAuthenticated) {
+    <p-button label="Register" [style]="{ 'margin-right': '4px' }"></p-button>
+    <p-button label="Login" [style]="{ 'margin-right': '4px' }"></p-button>
+    }
   </ng-template>
 </p-menubar>

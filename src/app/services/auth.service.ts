@@ -20,4 +20,24 @@ export class AuthService {
 
     return false;
   }
+
+  postLoginProcessor(token: string): void {
+    this.cookieService.set(
+      'token',
+      token,
+      1,
+      '/',
+      `${import.meta.env['NG_APP_DOMAIN']}`,
+      true,
+      'None'
+    );
+
+    if (!this.isAuthenticated()) {
+      throw new Error('Unable to login');
+    }
+  }
+
+  logout() {
+    this.cookieService.delete('token');
+  }
 }
