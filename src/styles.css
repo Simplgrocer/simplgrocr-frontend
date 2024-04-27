@@ -6,3 +6,42 @@
   align-items: center;
   height: 90vh;
 }
+
+.content {
+  padding-top: 60px;
+}
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  padding-right: 15px;
+  padding-left: 15px;
+}
+
+.p-toast {
+  z-index: 2;
+}
+
+@media (min-width: 576px) {
+  .container {
+    max-width: 640px;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 780px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 1024px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1180px;
+  }
+}
