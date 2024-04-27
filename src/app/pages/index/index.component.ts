@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { GroceryListService, UserGroceryListResponse } from '../../services/grocery-list.service';
 import { Router } from '@angular/router';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [],
+  imports: [CardModule, ButtonModule],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
