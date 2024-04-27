@@ -1,10 +1,15 @@
+@if (disableInteraction) {
+<app-centered-progress-spinner />
+} @else {
 <div class="content">
+  <h1>Your lists</h1>
+
   @for (groceryList of groceryLists; track groceryList.id) {
   <p-card header="{{ groceryList.name }}">
     <p class="m-0">
       <p-button
         icon="pi pi-arrow-up-right"
-        onclick="expandUserGroceryList(groceryList.id)"
+        (onClick)="expandUserGroceryList(groceryList.id)"
       ></p-button>
     </p>
   </p-card>
@@ -12,3 +17,4 @@
   <br />
   }
 </div>
+}

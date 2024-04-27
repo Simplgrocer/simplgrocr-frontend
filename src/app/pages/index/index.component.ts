@@ -3,15 +3,17 @@ import { GroceryListService, UserGroceryListResponse } from '../../services/groc
 import { Router } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
+import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
 
 @Component({
   selector: 'app-index',
   standalone: true,
-  imports: [CardModule, ButtonModule],
+  imports: [CardModule, ButtonModule, CenteredProgressSpinnerComponent],
   templateUrl: './index.component.html',
   styleUrl: './index.component.css',
 })
 export class IndexComponent implements OnInit {
+  disableInteraction = true;
   groceryLists: UserGroceryListResponse[] = [];
 
   constructor(private router: Router, private groceryListService: GroceryListService) {}
@@ -20,6 +22,8 @@ export class IndexComponent implements OnInit {
     this.groceryListService.getUserGroceryLists().subscribe({
       next: (response: UserGroceryListResponse[]) => {
         this.groceryLists = response;
+
+        this.disableInteraction = false;
       }
     });
   }
