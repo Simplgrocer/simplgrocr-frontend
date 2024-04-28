@@ -1,10 +1,95 @@
-<div class="row navbar price-div sticky-top py-3">
+<p-toast></p-toast>
+<p-toast position="top-right" key="tr"></p-toast>
+
+@if (disableInteraction) {
+<app-centered-progress-spinner />
+} @else {
+<p-menubar
+  class="sticky-top"
+  [style]="{
+    top: '60px',
+    'background-color': 'rgba(255, 255, 255, 0.9)',
+    'backdrop-filter': 'blur(5px)',
+    border: 'none',
+    'box-shadow': 'none'
+  }"
+>
+  <ng-template pTemplate="start">
+    <h2>Total price</h2>
+  </ng-template>
+  <ng-template pTemplate="end">
+    <h2>{{ userGroceryListForm.controls["totalPrice"].value }}</h2>
+  </ng-template>
+</p-menubar>
+
+<div class="container content">
+  <p-card>
+    <div class="grid">
+      <div class="col">
+        <div class="text-right">
+          <p-button
+            icon="pi pi-user-plus"
+            severity="info"
+            class="mr-1"
+          ></p-button>
+          <p-button
+            icon="pi pi-file-export"
+            severity="secondary"
+            class="mr-1"
+          ></p-button>
+          <p-button icon="pi pi-times" severity="danger"></p-button>
+        </div>
+      </div>
+    </div>
+
+    <br />
+
+    @if (userGroceryListForm) {
+    <form [formGroup]="userGroceryListForm">
+      <p-floatLabel>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="name"
+        />
+        <label for="name">Name</label>
+      </p-floatLabel>
+      <br />
+      <br />
+      <p-floatLabel>
+        <input
+          id="description"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="description"
+        />
+        <label for="description">Description</label>
+      </p-floatLabel>
+      <br />
+      <p-button
+        label="Update"
+        icon="pi pi-refresh"
+        iconPos="right"
+        type="button"
+        [disabled]="disableUserGroceryListBasicFormUpdation"
+        (onClick)="updateUserGroceryListBasicDetails()"
+      ></p-button>
+    </form>
+    }
+  </p-card>
+</div>
+}
+
+<!-- <div class="row navbar price-div sticky-top py-3">
   <div class="col">
     <label class="form-label">Total</label>
   </div>
   <div class="col text-end">
     <label class="form-label">{{
-      groceryListForm.controls["totalPrice"].value
+      userGroceryListForm.controls["totalPrice"].value
     }}</label>
   </div>
 </div>
@@ -39,8 +124,8 @@
   <p>{{ groceryListFormMessage }}></p>
 </div>
 
-} @if (groceryListForm) {
-<form [formGroup]="groceryListForm" (ngSubmit)="updateUserGroceryList()">
+} @if (userGroceryListForm) {
+<form [formGroup]="userGroceryListForm" (ngSubmit)="updateUserGroceryList()">
   <div class="mb-3">
     <label class="form-label">Name</label>
     <input type="text" class="form-control" formControlName="name" required />
@@ -237,4 +322,4 @@
     </div>
   </div>
 </div>
-}
+} -->

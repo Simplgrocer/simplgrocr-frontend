@@ -11,6 +11,7 @@ import {
 import {
   GroceryListItemCreationUpdationPayload,
   GroceryListService,
+  GroceryListUpdationPayload,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
   UserGroceryListSummaryExportResponse,
@@ -18,6 +19,16 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import { map } from 'rxjs';
+import { MenubarModule } from 'primeng/menubar';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ToastModule } from 'primeng/toast';
+import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 
 interface MeasurementUnit {
   id: string;
@@ -33,11 +44,39 @@ interface UserGroceryListFormItemsFormGroupChangeActions {
 @Component({
   selector: 'app-grocery-list-view-update',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ContentEditableDirective],
+  providers: [MessageService],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    ContentEditableDirective,
+    MenubarModule,
+    InputTextModule,
+    PasswordModule,
+    FloatLabelModule,
+    ButtonModule,
+    CardModule,
+    DividerModule,
+    ToastModule,
+    CommonModule,
+    CenteredProgressSpinnerComponent,
+  ],
   templateUrl: './grocery-list-view-update.component.html',
   styleUrl: './grocery-list-view-update.component.css',
 })
 export class GroceryListViewUpdateComponent implements OnInit {
+  disableUserGroceryListBasicFormUpdation = true;
+  disableInteraction = false;
+
+  initialUserGroceryListFormValues: {
+    name: string;
+    description: string;
+    totalPrice: number;
+  } = {
+    name: '',
+    description: '',
+    totalPrice: 0,
+  };
+
   measurementUnits: MeasurementUnit[] = [
     { id: '1', value: 'Unit' },
     { id: '2', value: 'Kilogram' },
@@ -46,7 +85,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
   id = '';
 
-  groceryListForm!: FormGroup;
+  userGroceryListForm!: FormGroup;
 
   groceryListFormStatus:
     | 'NotSubmitted'
@@ -62,19 +101,52 @@ export class GroceryListViewUpdateComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private groceryListService: GroceryListService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService,
+    private primengConfig: PrimeNGConfig
   ) {}
 
   ngOnInit() {
     this.id = this.route.snapshot.url[1].path;
 
+    this.primengConfig.ripple = true;
+
     this.groceryListService.getUserGroceryList(this.id).subscribe({
       next: (response: UserGroceryListResponse) => {
-        this.groceryListForm = new FormGroup({
+        this.userGroceryListForm = new FormGroup({
           name: new FormControl(response.name, [Validators.required]),
           description: new FormControl(response.description),
           totalPrice: new FormControl(response.total_price),
           items: new FormArray([]),
+        });
+
+        this.initialUserGroceryListFormValues.name = response.name;
+        this.initialUserGroceryListFormValues.description =
+          response.description;
+
+        this.userGroceryListForm.valueChanges.subscribe(() => {
+          const nameControl = this.userGroceryListForm.get('name')!;
+          const descriptionControl =
+            this.userGroceryListForm.get('description')!;
+
+          const nameIsValid = nameControl.valid;
+          const descriptionIsValid = descriptionControl.valid;
+
+          if (nameIsValid && descriptionIsValid) {
+            const nameChanged =
+              nameControl.value !== this.initialUserGroceryListFormValues.name;
+            const descriptionChanged =
+              descriptionControl.value !==
+              this.initialUserGroceryListFormValues.description;
+
+            if (nameChanged || descriptionChanged) {
+              this.disableUserGroceryListBasicFormUpdation = false;
+            } else {
+              this.disableUserGroceryListBasicFormUpdation = true;
+            }
+          } else {
+            this.disableUserGroceryListBasicFormUpdation = true;
+          }
         });
 
         this.groceryListService
@@ -114,9 +186,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
           )
           .subscribe({
             next: (formGroups: FormGroup[]) => {
-              if (this.groceryListForm) {
+              if (this.userGroceryListForm) {
                 formGroups.forEach((formGroup) =>
-                  (this.groceryListForm.get('items') as FormArray).push(
+                  (this.userGroceryListForm.get('items') as FormArray).push(
                     formGroup
                   )
                 );
@@ -138,7 +210,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   getItemsArrayControls(): AbstractControl<any, any>[] {
-    return (this.groceryListForm.get('items') as FormArray).controls;
+    return (this.userGroceryListForm.get('items') as FormArray).controls;
   }
 
   addUserGroceryListItem(): void {
@@ -156,7 +228,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
       })
       .subscribe({
         next: (response: UserGroceryListItemResponse) => {
-          (this.groceryListForm.get('items') as FormArray).push(
+          (this.userGroceryListForm.get('items') as FormArray).push(
             new FormGroup({
               id: new FormControl(response.id),
               name: new FormControl('', [Validators.required]),
@@ -181,7 +253,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   updateUserGroceryListItem(index: number): void {
     // this.groceryListFormStatus = 'InProgress';
 
-    const userGroceryListItemsFormArray = this.groceryListForm.get(
+    const userGroceryListItemsFormArray = this.userGroceryListForm.get(
       'items'
     ) as FormArray;
 
@@ -214,7 +286,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
           this.groceryListService
             .updatePatchUserGroceryList(this.id, {
-              total_price: this.groceryListForm.controls['totalPrice'].value,
+              total_price:
+                this.userGroceryListForm.controls['totalPrice'].value,
             })
             .subscribe({});
 
@@ -227,7 +300,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   deleteUserGroceryListItem(index: number): void {
-    const userGroceryListItemsFormArray = this.groceryListForm.get(
+    const userGroceryListItemsFormArray = this.userGroceryListForm.get(
       'items'
     ) as FormArray;
 
@@ -242,14 +315,16 @@ export class GroceryListViewUpdateComponent implements OnInit {
       next: () => {
         this.groceryListService
           .updatePatchUserGroceryList(this.id, {
-            total_price: this.groceryListForm.controls['totalPrice'].value,
+            total_price: this.userGroceryListForm.controls['totalPrice'].value,
           })
           .subscribe({
             next: () => {
-              (this.groceryListForm.get('items') as FormArray).removeAt(index);
+              (this.userGroceryListForm.get('items') as FormArray).removeAt(
+                index
+              );
 
-              this.groceryListForm.controls['totalPrice'].setValue(
-                this.groceryListForm.controls['totalPrice'].value - oldPrice
+              this.userGroceryListForm.controls['totalPrice'].setValue(
+                this.userGroceryListForm.controls['totalPrice'].value - oldPrice
               );
             },
           });
@@ -260,7 +335,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   updateItemPrice(index: number): void {
     console.log(
       (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['update'].value
@@ -268,29 +343,29 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
     if (
       !(
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['update'].value
     ) {
       (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['update'].setValue(true);
     }
 
-    const oldTotalPrice = this.groceryListForm.controls['totalPrice'].value;
+    const oldTotalPrice = this.userGroceryListForm.controls['totalPrice'].value;
 
     const oldPrice = (
-      (this.groceryListForm.controls['items'] as FormArray).controls[
+      (this.userGroceryListForm.controls['items'] as FormArray).controls[
         index
       ] as FormGroup
     ).controls['price'].value;
 
     const newPrice = this.groceryListService.getItemPrice(
       (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['rateMeasurementQuantity'].value,
@@ -298,13 +373,13 @@ export class GroceryListViewUpdateComponent implements OnInit {
         (obj) =>
           obj.id ===
           (
-            (this.groceryListForm.controls['items'] as FormArray).controls[
+            (this.userGroceryListForm.controls['items'] as FormArray).controls[
               index
             ] as FormGroup
           ).controls['rateMeasurementUnit'].value
       )!.value,
       (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['rate'].value,
@@ -312,31 +387,87 @@ export class GroceryListViewUpdateComponent implements OnInit {
         (obj) =>
           obj.id ===
           (
-            (this.groceryListForm.controls['items'] as FormArray).controls[
+            (this.userGroceryListForm.controls['items'] as FormArray).controls[
               index
             ] as FormGroup
           ).controls['quantityMeasurementUnit'].value
       )!.value,
       (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
+        (this.userGroceryListForm.controls['items'] as FormArray).controls[
           index
         ] as FormGroup
       ).controls['quantity'].value
     );
 
     (
-      (this.groceryListForm.controls['items'] as FormArray).controls[
+      (this.userGroceryListForm.controls['items'] as FormArray).controls[
         index
       ] as FormGroup
     ).controls['price'].setValue(newPrice);
 
-    this.groceryListForm.controls['totalPrice'].setValue(
+    this.userGroceryListForm.controls['totalPrice'].setValue(
       oldTotalPrice + newPrice - oldPrice
     );
   }
 
-  updateUserGroceryList() {
-    console.log(1);
+  updateUserGroceryListBasicDetails() {
+    let invalid = false;
+
+    for (const controlName of ['name', 'description']) {
+      if (this.userGroceryListForm.controls[controlName].invalid) {
+        invalid = true;
+
+        break;
+      }
+    }
+
+    if (invalid) {
+    } else {
+      this.disableInteraction = true;
+
+      const name = this.userGroceryListForm.controls['name'].value;
+      const description =
+        this.userGroceryListForm.controls['description'].value;
+
+      let userGroceryListUpdationPayload: GroceryListUpdationPayload = {};
+
+      if (name !== this.initialUserGroceryListFormValues.name) {
+        userGroceryListUpdationPayload.name = name;
+      }
+
+      if (description !== this.initialUserGroceryListFormValues.description) {
+        userGroceryListUpdationPayload.description = description;
+      }
+
+      this.groceryListService
+        .updatePatchUserGroceryList(this.id, userGroceryListUpdationPayload)
+        .subscribe({
+          next: () => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Grocery list updated successfully',
+            });
+
+            this.disableUserGroceryListBasicFormUpdation = true;
+          },
+          error: (error) => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to update grocery list',
+            });
+
+            this.disableUserGroceryListBasicFormUpdation = true;
+          },
+        });
+    }
   }
 
   deleteUserGroceryList() {

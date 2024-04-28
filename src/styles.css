@@ -1,5 +1,14 @@
 @import "primeicons/primeicons.css";
 
+.sticky-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1;
+}
+
 .centered-container {
   display: flex;
   justify-content: center;
