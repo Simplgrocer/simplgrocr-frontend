@@ -28,7 +28,13 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
 import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
-import { MessageService, PrimeNGConfig } from 'primeng/api';
+import {
+  ConfirmationService,
+  MessageService,
+  PrimeNGConfig,
+} from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 interface MeasurementUnit {
   id: string;
@@ -44,7 +50,7 @@ interface UserGroceryListFormItemsFormGroupChangeActions {
 @Component({
   selector: 'app-grocery-list-view-update',
   standalone: true,
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -57,6 +63,7 @@ interface UserGroceryListFormItemsFormGroupChangeActions {
     CardModule,
     DividerModule,
     ToastModule,
+    ConfirmDialogModule,
     CommonModule,
     CenteredProgressSpinnerComponent,
   ],
@@ -103,7 +110,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
     private groceryListService: GroceryListService,
     private router: Router,
     private messageService: MessageService,
-    private primengConfig: PrimeNGConfig
+    private primengConfig: PrimeNGConfig,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit() {
@@ -471,10 +479,32 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   deleteUserGroceryList() {
-    this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
+    this.confirmationService.confirm({
+      header: `Delete ${this.userGroceryListForm.controls['name'].value}`,
+      message: 'Are you sure that you want to perform this action?',
+      defaultFocus: 'none',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: '',
+      accept: () => {
+        this.disableInteraction = true;
+
+        this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
+          next: () => {
+            this.router.navigate(['/']);
+          },
+          error: () => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to delete grocery list',
+            });
+          },
+        });
       },
+      reject: () => {},
     });
   }
 

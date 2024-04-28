@@ -1,5 +1,6 @@
 <p-toast></p-toast>
 <p-toast position="top-right" key="tr"></p-toast>
+<p-confirmDialog></p-confirmDialog>
 
 @if (disableInteraction) {
 <app-centered-progress-spinner />
@@ -37,7 +38,11 @@
             severity="secondary"
             class="mr-1"
           ></p-button>
-          <p-button icon="pi pi-times" severity="danger"></p-button>
+          <p-button
+            icon="pi pi-times"
+            severity="danger"
+            (click)="deleteUserGroceryList()"
+          ></p-button>
         </div>
       </div>
     </div>
