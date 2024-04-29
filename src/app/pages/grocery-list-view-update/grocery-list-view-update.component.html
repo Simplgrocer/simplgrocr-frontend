@@ -18,13 +18,15 @@
   <ng-template pTemplate="start">
     <h2>Total price</h2>
   </ng-template>
+  @if (userGroceryListForm) {
   <ng-template pTemplate="end">
     <h2>{{ userGroceryListForm.controls["totalPrice"].value }}</h2>
   </ng-template>
+  }
 </p-menubar>
 
 <div class="container content">
-  <p-card>
+  <p-card header="{{ userGroceryListForm.controls['name'].value}}">
     <div class="grid">
       <div class="col">
         <div class="text-right">
@@ -37,6 +39,7 @@
             icon="pi pi-file-export"
             severity="secondary"
             class="mr-1"
+            (onClick)="exportUserGroceryListSummary()"
           ></p-button>
           <p-button
             icon="pi pi-times"
@@ -74,14 +77,182 @@
         <label for="description">Description</label>
       </p-floatLabel>
       <br />
-      <p-button
-        label="Update"
-        icon="pi pi-refresh"
-        iconPos="right"
-        type="button"
-        [disabled]="disableUserGroceryListBasicFormUpdation"
-        (onClick)="updateUserGroceryListBasicDetails()"
-      ></p-button>
+      <div class="grid">
+        <div class="col">
+          <div class="text-right">
+            <p-button
+              label="Update"
+              icon="pi pi-refresh"
+              iconPos="right"
+              type="button"
+              [disabled]="disableUserGroceryListBasicFormUpdation"
+              (onClick)="updateUserGroceryListBasicDetails()"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+
+      <h4>Items</h4>
+
+      <div formArrayName="items">
+        <p-accordion [activeIndex]="0">
+          @for (control of getItemsArrayControls(); track control; let index =
+          $index) {
+          <div formGroupName="{{ index }}">
+            <p-accordionTab header="{{ control.get('name')?.value }}">
+              <div class="grid">
+                <div class="col">
+                  <div class="text-right">
+                    <p-button
+                      icon="pi pi-times"
+                      severity="danger"
+                      (click)="deleteUserGroceryListItem(index)"
+                    ></p-button>
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                <p-floatLabel>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    class="p-inputtext-sm w-full"
+                    formControlName="name"
+                  />
+                  <label for="name">Name</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <input
+                    id="description"
+                    type="text"
+                    pInputText
+                    class="p-inputtext-sm w-full"
+                    formControlName="description"
+                  />
+                  <label for="description">Description</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="rate_measurement_quantity"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="rate_measurement_quantity"
+                  />
+                  <label for="rate_measurement_quantity"
+                    >Rate Measurement Quantity</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-dropdown
+                    id="rate_measurement_unit"
+                    formControlName="rateMeasurementUnit"
+                    [options]="measurementUnits"
+                    [editable]="true"
+                    optionLabel="value"
+                    placeholder="Rate Measurement Unit"
+                  ></p-dropdown>
+                  <label for="rate_measurement_unit"
+                    >Rate Measurement Unit</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="rate"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="rate"
+                  />
+                  <label for="rate">Rate</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-dropdown
+                    id="quantity_measurement_unit"
+                    formControlName="quantityMeasurementUnit"
+                    [options]="measurementUnits"
+                    [editable]="true"
+                    optionLabel="value"
+                    placeholder="Quantity Measurement Unit"
+                  ></p-dropdown>
+                  <label for="quantity_measurement_unit"
+                    >Quantity Measurement Unit</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="quantity"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="quantity"
+                  />
+                  <label for="quantity">Quantity</label>
+                </p-floatLabel>
+              </p>
+              <div class="grid">
+                <div class="col">
+                  <h4>Total price</h4>
+                </div>
+                <div class="col">
+                  <div class="text-right">
+                    <h4>{{ control.get("price")?.value }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="grid">
+                <div class="col">
+                  <div class="text-right">
+                    <p-button
+                      label="Update"
+                      icon="pi pi-refresh"
+                      iconPos="right"
+                      type="button"
+                      [disabled]="disableUserGroceryListBasicFormUpdation"
+                      (onClick)="updateUserGroceryListBasicDetails()"
+                    ></p-button>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </div>
+          }
+        </p-accordion>
+      </div>
+      <br />
+      <div class="grid">
+        <div class="col">
+          <div class="text-right">
+            <p-button
+              label="Add"
+              icon="pi pi-plus"
+              iconPos="right"
+              type="button"
+              (onClick)="addUserGroceryListItem()"
+            ></p-button>
+          </div>
+        </div>
+      </div>
     </form>
     }
   </p-card>
@@ -151,7 +322,7 @@
   <h3>Items</h3>
 
   <div formArrayName="items">
-    @for (item of getItemsArrayControls(); track item; let index = $index) {
+    @for (control of getItemsArrayControls(); track control; let index = $index) {
     <div class="card">
       <div class="card-body">
         <div formGroupName="{{ index }}">
@@ -162,7 +333,7 @@
                 type="button"
                 class="btn btn-success"
                 (click)="updateUserGroceryListItem(index)"
-                [disabled]="!item.get('update')!.value"
+                [disabled]="!control.get('update')!.value"
               >
                 Update
               </button>
@@ -271,7 +442,7 @@
               <label class="form-label">Total</label>
             </div>
             <div class="col text-end">
-              <label class="form-label">{{ item.get("price")?.value }}</label>
+              <label class="form-label">{{ control.get("price")?.value }}</label>
             </div>
           </div>
         </div>
@@ -288,7 +459,7 @@
       class="btn btn-success"
       (click)="addUserGroceryListItem()"
     >
-      Add item
+      Add control
     </button>
   </div>
 

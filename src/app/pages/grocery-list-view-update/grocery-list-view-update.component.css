@@ -5,3 +5,11 @@
 .danger {
   background-color: #ef4444;
 }
+
+:host ::ng-deep .p-dropdown {
+  width: 100%;
+}
+
+:host ::ng-deep .p-inputNumber {
+  width: 100%;
+}

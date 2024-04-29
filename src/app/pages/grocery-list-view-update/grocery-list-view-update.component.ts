@@ -8,33 +8,34 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { AccordionModule } from 'primeng/accordion';
 import {
-  GroceryListItemCreationUpdationPayload,
+  ConfirmationService,
+  MessageService,
+  PrimeNGConfig,
+} from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DividerModule } from 'primeng/divider';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenubarModule } from 'primeng/menubar';
+import { PasswordModule } from 'primeng/password';
+import { ToastModule } from 'primeng/toast';
+import { map } from 'rxjs';
+import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { ContentEditableDirective } from '../../directives/content-editable.directive';
+import {
   GroceryListService,
   GroceryListUpdationPayload,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
   UserGroceryListSummaryExportResponse,
 } from '../../services/grocery-list.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ContentEditableDirective } from '../../directives/content-editable.directive';
-import { map } from 'rxjs';
-import { MenubarModule } from 'primeng/menubar';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { DividerModule } from 'primeng/divider';
-import { FloatLabelModule } from 'primeng/floatlabel';
-import { InputTextModule } from 'primeng/inputtext';
-import { PasswordModule } from 'primeng/password';
-import { ToastModule } from 'primeng/toast';
-import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
-import {
-  ConfirmationService,
-  MessageService,
-  PrimeNGConfig,
-} from 'primeng/api';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputNumberModule } from 'primeng/inputnumber';
 
 interface MeasurementUnit {
   id: string;
@@ -64,6 +65,9 @@ interface UserGroceryListFormItemsFormGroupChangeActions {
     DividerModule,
     ToastModule,
     ConfirmDialogModule,
+    AccordionModule,
+    DropdownModule,
+    InputNumberModule,
     CommonModule,
     CenteredProgressSpinnerComponent,
   ],
@@ -222,6 +226,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   addUserGroceryListItem(): void {
+    this.disableInteraction = true;
+
     this.groceryListService
       .createUserGroceryListItem(this.id, {
         name: '',
@@ -254,6 +260,18 @@ export class GroceryListViewUpdateComponent implements OnInit {
               update: new FormControl(false),
             })
           );
+
+          this.disableInteraction = false;
+        },
+        error: (error) => {
+          this.disableInteraction = false;
+
+          this.messageService.add({
+            key: 'tr',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unable to add item',
+          });
         },
       });
   }
@@ -308,6 +326,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   deleteUserGroceryListItem(index: number): void {
+    this.disableInteraction = true;
+
     const userGroceryListItemsFormArray = this.userGroceryListForm.get(
       'items'
     ) as FormArray;
@@ -327,6 +347,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
           })
           .subscribe({
             next: () => {
+              this.disableInteraction = false;
+            
               (this.userGroceryListForm.get('items') as FormArray).removeAt(
                 index
               );
@@ -335,7 +357,27 @@ export class GroceryListViewUpdateComponent implements OnInit {
                 this.userGroceryListForm.controls['totalPrice'].value - oldPrice
               );
             },
+            error: (error) => {
+              this.disableInteraction = false;
+
+              this.messageService.add({
+                key: 'tr',
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Unable to delete item',
+              });
+            },
           });
+      },
+      error: (error) => {
+        this.disableInteraction = false;
+
+        this.messageService.add({
+          key: 'tr',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Unable to delete item',
+        });
       },
     });
   }
@@ -490,6 +532,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
         this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
           next: () => {
+            this.disableInteraction = false;
+
             this.router.navigate(['/']);
           },
           error: () => {
