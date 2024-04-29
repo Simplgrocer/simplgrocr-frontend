@@ -154,19 +154,20 @@ export class GroceryListService {
 
   exportUserGroceryListSummary(
     id: string
-  ): Observable<UserGroceryListSummaryExportResponse> {
+  ): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
 
-    return this.httpClient.post<UserGroceryListSummaryExportResponse>(
+    return this.httpClient.get(
       `${import.meta.env['NG_APP_API_BASE_URL']}/${
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/${id}/summary/`,
-      {},
       {
+        responseType: 'blob',
         headers: headers,
-      }
+      },
+
     );
   }
 

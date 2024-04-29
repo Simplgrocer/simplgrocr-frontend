@@ -553,9 +553,30 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   exportUserGroceryListSummary() {
+    this.disableInteraction = true;
+
     this.groceryListService.exportUserGroceryListSummary(this.id!).subscribe({
-      next: (response: UserGroceryListSummaryExportResponse) => {
-        window.open(response.download_url, '_blank');
+      next: (response: Blob) => {
+        const downloadLink = document.createElement('a');
+
+        const fileName = `${this.userGroceryListForm.controls['name'].value} ${Date.now()}.pdf`;
+        
+        downloadLink.href = window.URL.createObjectURL(response);
+        downloadLink.download = fileName;
+        
+        downloadLink.dispatchEvent(new MouseEvent('click'));
+
+        this.disableInteraction = false;
+      },
+      error: (error) => {
+        this.disableInteraction = false;
+
+        this.messageService.add({
+          key: 'tr',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Unable to export grocery list',
+        });
       },
     });
   }
