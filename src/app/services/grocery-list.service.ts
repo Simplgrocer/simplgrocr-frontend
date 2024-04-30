@@ -61,6 +61,22 @@ export interface UserGroceryListItemResponse {
   providedIn: 'root',
 })
 export class GroceryListService {
+  generateUserGroceryListBasicFormObjectMetadata(
+    response: UserGroceryListResponse
+  ) {
+    return [
+      {
+        name: 'name',
+        label: 'Name',
+        value: response.name,
+        type: 'text',
+        validators: {
+          required: true,
+        },
+      },
+    ];
+  }
+
   token!: string;
 
   constructor(
@@ -152,9 +168,7 @@ export class GroceryListService {
     );
   }
 
-  exportUserGroceryListSummary(
-    id: string
-  ): Observable<Blob> {
+  exportUserGroceryListSummary(id: string): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
@@ -166,8 +180,7 @@ export class GroceryListService {
       {
         responseType: 'blob',
         headers: headers,
-      },
-
+      }
     );
   }
 

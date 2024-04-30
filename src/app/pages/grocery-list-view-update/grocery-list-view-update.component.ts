@@ -1,6 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import {
+  FormArray,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AccordionModule } from 'primeng/accordion';
 import {
@@ -18,10 +24,18 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenubarModule } from 'primeng/menubar';
 import { PasswordModule } from 'primeng/password';
+import { SkeletonModule } from 'primeng/skeleton';
 import { ToastModule } from 'primeng/toast';
-import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
+import { ProgressSpinnerLgComponent } from '../../components/progress-spinner-lg/progress-spinner-lg.component';
+import { ProgressSpinnerSmComponent } from '../../components/progress-spinner-sm/progress-spinner-sm.component';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
-import { GroceryListService } from '../../services/grocery-list.service';
+import {
+  GroceryListService,
+  UserGroceryListResponse,
+} from '../../services/grocery-list.service';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+
 @Component({
   selector: 'app-grocery-list-view-update',
   standalone: true,
@@ -43,15 +57,21 @@ import { GroceryListService } from '../../services/grocery-list.service';
     DropdownModule,
     InputNumberModule,
     CommonModule,
-    CenteredProgressSpinnerComponent,
+    SkeletonModule,
+    NgxSkeletonLoaderModule,
+    ProgressSpinnerSmComponent,
+    ProgressSpinnerLgComponent,
+    CenteredProgressSpinnerLgComponent,
   ],
   templateUrl: './grocery-list-view-update.component.html',
   styleUrl: './grocery-list-view-update.component.css',
 })
 export class GroceryListViewUpdateComponent implements OnInit {
   disableInteraction = false;
+  userGroceryListBasicFormInitialized = false;
 
   id: string | undefined;
+  userGroceryListForm: FormGroup | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,14 +83,22 @@ export class GroceryListViewUpdateComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.disableInteraction = true;
-
     this.id = this.route.snapshot.url[1].path;
 
     this.primengConfig.ripple = true;
 
     if (this.id) {
       this.groceryListService.getUserGroceryList(this.id).subscribe({
+        next: (response: UserGroceryListResponse) => {
+          this.userGroceryListForm = new FormGroup({
+            name: new FormControl(response.name, [Validators.required]),
+            description: new FormControl(response.description),
+            totalPrice: new FormControl(response.total_price),
+            items: new FormArray([]),
+          });
+
+          this.userGroceryListBasicFormInitialized = true;
+        },
         error: (error) => {
           if (error.status === 404) {
             this.router.navigate(['/not-found']);

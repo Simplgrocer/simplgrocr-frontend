@@ -19,7 +19,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
-import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
 import { MessageService, PrimeNGConfig } from 'primeng/api';
 
 @Component({
@@ -38,7 +38,7 @@ import { MessageService, PrimeNGConfig } from 'primeng/api';
     DividerModule,
     ToastModule,
     CommonModule,
-    CenteredProgressSpinnerComponent,
+    CenteredProgressSpinnerLgComponent,
   ],
   templateUrl: './grocery-list-create.component.html',
   styleUrl: './grocery-list-create.component.css',
