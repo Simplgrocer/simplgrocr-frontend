@@ -137,28 +137,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
           response.description;
 
         this.userGroceryListForm.valueChanges.subscribe(() => {
-          const nameControl = this.userGroceryListForm.get('name')!;
-          const descriptionControl =
-            this.userGroceryListForm.get('description')!;
-
-          const nameIsValid = nameControl.valid;
-          const descriptionIsValid = descriptionControl.valid;
-
-          if (nameIsValid && descriptionIsValid) {
-            const nameChanged =
-              nameControl.value !== this.initialUserGroceryListFormValues.name;
-            const descriptionChanged =
-              descriptionControl.value !==
-              this.initialUserGroceryListFormValues.description;
-
-            if (nameChanged || descriptionChanged) {
-              this.disableUserGroceryListBasicFormUpdation = false;
-            } else {
-              this.disableUserGroceryListBasicFormUpdation = true;
-            }
-          } else {
-            this.disableUserGroceryListBasicFormUpdation = true;
-          }
+          this.toggleUserGroceryListBasicFormUpdation();
         });
 
         this.groceryListService
@@ -219,6 +198,28 @@ export class GroceryListViewUpdateComponent implements OnInit {
           'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
       },
     });
+  }
+
+  private toggleUserGroceryListBasicFormUpdation() {
+    const nameControl = this.userGroceryListForm.get('name')!;
+    const descriptionControl = this.userGroceryListForm.get('description')!;
+
+    const nameIsValid = nameControl.valid;
+    const descriptionIsValid = descriptionControl.valid;
+
+    if (nameIsValid && descriptionIsValid) {
+      const nameChanged = nameControl.value !== this.initialUserGroceryListFormValues.name;
+      const descriptionChanged = descriptionControl.value !==
+        this.initialUserGroceryListFormValues.description;
+
+      if (nameChanged || descriptionChanged) {
+        this.disableUserGroceryListBasicFormUpdation = false;
+      } else {
+        this.disableUserGroceryListBasicFormUpdation = true;
+      }
+    } else {
+      this.disableUserGroceryListBasicFormUpdation = true;
+    }
   }
 
   getItemsArrayControls(): AbstractControl<any, any>[] {

@@ -26,7 +26,8 @@
 </p-menubar>
 
 <div class="container content">
-  <p-card header="{{ userGroceryListForm.controls['name'].value}}">
+  @if (userGroceryListForm) {
+  <p-card header="{{ userGroceryListForm.controls['name'].value }}">
     <div class="grid">
       <div class="col">
         <div class="text-right">
@@ -52,7 +53,6 @@
 
     <br />
 
-    @if (userGroceryListForm) {
     <form [formGroup]="userGroceryListForm">
       <p-floatLabel>
         <input
@@ -145,7 +145,7 @@
                     maxFractionDigits="2"
                     class="p-inputtext-sm w-full"
                     styleClass="w-full"
-                    formControlName="rate_measurement_quantity"
+                    formControlName="rateMeasurementQuantity"
                   />
                   <label for="rate_measurement_quantity"
                     >Rate Measurement Quantity</label
@@ -254,248 +254,7 @@
         </div>
       </div>
     </form>
-    }
   </p-card>
+  }
 </div>
 }
-
-<!-- <div class="row navbar price-div sticky-top py-3">
-  <div class="col">
-    <label class="form-label">Total</label>
-  </div>
-  <div class="col text-end">
-    <label class="form-label">{{
-      userGroceryListForm.controls["totalPrice"].value
-    }}</label>
-  </div>
-</div>
-
-<div class="row">
-  <div class="col"></div>
-  <div class="btn-group col text-end" role="group">
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="exportUserGroceryListSummary()"
-    >
-      Export
-    </button>
-    <button
-      type="button"
-      class="btn btn-danger"
-      (click)="deleteUserGroceryList()"
-    >
-      Delete
-    </button>
-  </div>
-</div>
-
-<br />
-<br />
-
-@if (groceryListFormStatus === 'NotSubmitted' || groceryListFormStatus ===
-'SubmissionError') { @if (groceryListFormStatus === 'SubmissionError') {
-<div class="alert alert-danger" role="alert">
-  <span class="alert-icon"><span class="visually-hidden">Error</span></span>
-  <p>{{ groceryListFormMessage }}></p>
-</div>
-
-} @if (userGroceryListForm) {
-<form [formGroup]="userGroceryListForm" (ngSubmit)="updateUserGroceryList()">
-  <div class="mb-3">
-    <label class="form-label">Name</label>
-    <input type="text" class="form-control" formControlName="name" required />
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Description</label>
-    <div
-      class="form-control"
-      formControlName="description"
-      required
-      appContentEditable
-      contenteditable="true"
-      aria-multiline="true"
-    ></div>
-  </div>
-
-  <h3>Items</h3>
-
-  <div formArrayName="items">
-    @for (control of getItemsArrayControls(); track control; let index = $index) {
-    <div class="card">
-      <div class="card-body">
-        <div formGroupName="{{ index }}">
-          <div class="row">
-            <div class="col"></div>
-            <div class="btn-group col text-end" role="group">
-              <button
-                type="button"
-                class="btn btn-success"
-                (click)="updateUserGroceryListItem(index)"
-                [disabled]="!control.get('update')!.value"
-              >
-                Update
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                (click)="deleteUserGroceryListItem(index)"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-
-          <br />
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Name</label>
-            <input
-              type="text"
-              class="form-control input-group-sm"
-              formControlName="name"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Description</label>
-            <div
-              type="text"
-              class="form-control"
-              formControlName="description"
-              required
-              appContentEditable
-              contenteditable="true"
-              aria-multiline="true"
-            ></div>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate Measurement quantity</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="rateMeasurementQuantity"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate Measurement unit</label>
-            <select
-              class="form-select"
-              formControlName="rateMeasurementUnit"
-              (change)="updateItemPrice(index)"
-              required
-            >
-              @for (measurementUnit of measurementUnits; track $index) {
-              <option [value]="measurementUnit.id">
-                {{ measurementUnit.value }}
-              </option>
-              }
-            </select>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="rate"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Quantity Measurement unit </label>
-            <select
-              class="form-select"
-              formControlName="quantityMeasurementUnit"
-              (change)="updateItemPrice(index)"
-              required
-            >
-              @for (measurementUnit of measurementUnits; track $index) {
-              <option [value]="measurementUnit.id">
-                {{ measurementUnit.value }}
-              </option>
-              }
-            </select>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Quantity</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="quantity"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="row">
-            <div class="col">
-              <label class="form-label">Total</label>
-            </div>
-            <div class="col text-end">
-              <label class="form-label">{{ control.get("price")?.value }}</label>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <br />
-    }
-  </div>
-
-  <div class="text-center">
-    <button
-      type="button"
-      class="btn btn-success"
-      (click)="addUserGroceryListItem()"
-    >
-      Add control
-    </button>
-  </div>
-
-  <br />
-
-  <div class="mb-3">
-    <label class="form-label">Generate with AI</label>
-    <div
-      contenteditable="true"
-      aria-multiline="true"
-      class="form-control"
-    ></div>
-  </div>
-
-  <div class="text-center">
-    <button
-      type="button"
-      class="btn btn-success"
-      (click)="addUserGroceryListItem()"
-    >
-      Generate
-    </button>
-  </div>
-
-  <br />
-
-  <div class="text-end">
-    <button type="submit" class="btn btn-primary">Update</button>
-  </div>
-</form>
-} } @else if (groceryListFormStatus === 'InProgress') {
-<div class="row align-items-center text-center" style="min-height: 70vh">
-  <div class="col-12">
-    <div class="spinner-border spinner-border-lg text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
-</div>
-} -->
