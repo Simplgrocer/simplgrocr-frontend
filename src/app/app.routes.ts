@@ -4,6 +4,7 @@ import { GroceryListCreateComponent } from './pages/grocery-list-create/grocery-
 import { GroceryListViewUpdateComponent } from './pages/grocery-list-view-update/grocery-list-view-update.component';
 import { IndexComponent } from './pages/index/index.component';
 import { LoginComponent } from './pages/login/login.component';
+import { PageNotFoundComponent } from './pages/page-not-found/page-not-found.component';
 
 export const routes: Routes = [
   {
@@ -15,7 +16,6 @@ export const routes: Routes = [
   {
     path: 'login',
     component: LoginComponent,
-    // canActivate: [authGuard],
     title: 'Login',
   },
   {
@@ -29,5 +29,15 @@ export const routes: Routes = [
     component: GroceryListViewUpdateComponent,
     canActivate: [authGuard],
     title: 'Grocery list',
+  },
+  {
+    path: 'page-not-found',
+    component: PageNotFoundComponent,
+    title: 'Page not found',
+  },
+  {
+    path: '**',
+    component: PageNotFoundComponent,
+    title: 'Page not found',
   },
 ];
