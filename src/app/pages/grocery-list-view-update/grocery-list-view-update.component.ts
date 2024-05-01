@@ -112,9 +112,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
           });
 
           this.userGroceryListForm.valueChanges.subscribe(() => {
-            const nameControl = this.userGroceryListForm?.get('name')!;
+            const nameControl = this.userGroceryListForm!.get('name')!;
             const descriptionControl =
-              this.userGroceryListForm?.get('description')!;
+              this.userGroceryListForm!.get('description')!;
 
             const nameChanged =
               nameControl.value !== this.userGroceryList?.name;
