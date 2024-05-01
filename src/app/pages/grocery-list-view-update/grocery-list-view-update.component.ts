@@ -77,8 +77,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
   userGroceryListBasicFormInitialized = false;
   disableUserGroceryListBasicFormUpdationPreviousState = true;
   disableUserGroceryListBasicFormUpdation = true;
+  resetUserGroceryListBasicForm = false;
 
-  edit = false;
+  userGroceryListBasicFormEdit = false;
 
   id: string | undefined;
   userGroceryList: UserGroceryListResponse | undefined;
@@ -126,12 +127,15 @@ export class GroceryListViewUpdateComponent implements OnInit {
             this.disableUserGroceryListBasicFormUpdation = !(
               nameIsValid &&
               descriptionIsValid &&
-              this.edit &&
+              this.userGroceryListBasicFormEdit &&
               (nameChanged || descriptionChanged)
             );
 
             this.disableUserGroceryListBasicFormUpdationPreviousState =
               this.disableUserGroceryListBasicFormUpdation;
+
+            this.resetUserGroceryListBasicForm =
+              !this.disableUserGroceryListBasicFormUpdation;
           });
 
           this.userGroceryListBasicFormInitialized = true;
@@ -147,12 +151,16 @@ export class GroceryListViewUpdateComponent implements OnInit {
     }
   }
 
-  onEditChange(value: boolean): void {
+  onUserGroceryListBasicFormEditButtonChange(value: boolean): void {
     if (!value) {
       this.disableUserGroceryListBasicFormUpdation = true;
+
+      this.resetUserGroceryListBasicForm = false;
     } else {
       if (!this.disableUserGroceryListBasicFormUpdationPreviousState) {
         this.disableUserGroceryListBasicFormUpdation = false;
+
+        this.resetUserGroceryListBasicForm = true;
       }
     }
   }
@@ -176,7 +184,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
     this.groceryListService
       .updatePatchUserGroceryList(this.id!, userGroceryListUpdationPayload)
       .subscribe({
-        next: () => {
+        next: (response: UserGroceryListResponse) => {
+          this.userGroceryList = response;
+
           this.disableInteraction = false;
 
           this.disableUserGroceryListBasicFormUpdation = true;
@@ -194,6 +204,15 @@ export class GroceryListViewUpdateComponent implements OnInit {
           this.disableUserGroceryListBasicFormUpdation = true;
         },
       });
+  }
+
+  resetUserGroceryListFormBasicDetails(): void {
+    this.userGroceryListForm!.patchValue({
+      name: this.userGroceryList!.name,
+      description: this.userGroceryList!.description,
+    });
+
+    this.resetUserGroceryListBasicForm = false;
   }
 
   deleteUserGroceryList() {
@@ -235,11 +254,13 @@ export class GroceryListViewUpdateComponent implements OnInit {
       next: (response: Blob) => {
         const downloadLink = document.createElement('a');
 
-        const fileName = `${this.userGroceryListForm!.controls['name'].value} ${Date.now()}.pdf`;
-        
+        const fileName = `${
+          this.userGroceryListForm!.controls['name'].value
+        } ${Date.now()}.pdf`;
+
         downloadLink.href = window.URL.createObjectURL(response);
         downloadLink.download = fileName;
-        
+
         downloadLink.dispatchEvent(new MouseEvent('click'));
 
         this.disableInteraction = false;

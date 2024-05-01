@@ -5,7 +5,7 @@
 @if (disableInteraction) {
 <app-centered-progress-spinner-lg />
 } @else if (error) {
-  <app-error />
+<app-error />
 } @else {
 <p-menubar
   class="sticky-top"
@@ -30,28 +30,28 @@
 </p-menubar>
 
 <div class="container content">
-  <div class="grid">
-    <div class="col">
-      <div class="text-right">
-        @if (!userGroceryListBasicFormInitialized) {
-        <ngx-skeleton-loader [theme]="{ 'width.%': 10 }"></ngx-skeleton-loader>
-        } @else if (userGroceryListForm) {
+  <p-card>
+    <div class="grid">
+      <div class="col">
         <div class="text-right">
-          <p-toggleButton
-            [(ngModel)]="edit"
-            (ngModelChange)="onEditChange($event)"
-            onLabel="View"
-            offLabel="Edit"
-          ></p-toggleButton>
+          @if (!userGroceryListBasicFormInitialized) {
+          <ngx-skeleton-loader
+            [theme]="{ 'width.%': 10 }"
+          ></ngx-skeleton-loader>
+          } @else if (userGroceryListForm) {
+          <div class="text-right">
+            <p-toggleButton
+              [(ngModel)]="userGroceryListBasicFormEdit"
+              (ngModelChange)="onUserGroceryListBasicFormEditButtonChange($event)"
+              onLabel="View"
+              offLabel="Edit"
+            ></p-toggleButton>
+          </div>
+          }
         </div>
-        }
       </div>
     </div>
-  </div>
 
-  <br />
-
-  <p-card>
     @if (!userGroceryListBasicFormInitialized) {
     <br />
     <ngx-skeleton-loader
@@ -100,6 +100,10 @@
       <div class="col">
         <div class="text-right">
           <ngx-skeleton-loader
+            class="mr-1"
+            [theme]="{ 'width.%': 15 }"
+          ></ngx-skeleton-loader>
+          <ngx-skeleton-loader
             [theme]="{ 'width.%': 15 }"
           ></ngx-skeleton-loader>
         </div>
@@ -114,7 +118,7 @@
           pInputText
           class="p-inputtext-sm w-full"
           formControlName="name"
-          [readOnly]="!edit"
+          [readOnly]="!userGroceryListBasicFormEdit"
         />
         <label for="name">Name</label>
       </p-floatLabel>
@@ -127,7 +131,7 @@
           pInputText
           class="p-inputtext-sm w-full"
           formControlName="description"
-          [readOnly]="!edit"
+          [readOnly]="!userGroceryListBasicFormEdit"
         />
         <label for="description">Description</label>
       </p-floatLabel>
@@ -137,11 +141,22 @@
           <div class="text-right">
             <p-button
               label="Update"
+              class="mr-1"
               icon="pi pi-refresh"
               iconPos="right"
               type="button"
+              severity="success"
               [disabled]="disableUserGroceryListBasicFormUpdation"
               (onClick)="updateUserGroceryListBasicDetails()"
+            ></p-button>
+            <p-button
+              label="Reset"
+              icon="pi pi-undo"
+              iconPos="right"
+              type="button"
+              severity="secondary"
+              [disabled]="!resetUserGroceryListBasicForm"
+              (onClick)="resetUserGroceryListFormBasicDetails()"
             ></p-button>
           </div>
         </div>
