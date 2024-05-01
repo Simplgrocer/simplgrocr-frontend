@@ -28,10 +28,33 @@
 </p-menubar>
 
 <div class="container content">
+  <div class="grid">
+    <div class="col">
+      <div class="text-right">
+        @if (!userGroceryListBasicFormInitialized) {
+        <ngx-skeleton-loader [theme]="{ 'width.%': 10 }"></ngx-skeleton-loader>
+        } @else if (userGroceryListForm) {
+        <div class="text-right">
+          <p-toggleButton
+            [(ngModel)]="edit"
+            (ngModelChange)="onEditChange($event)"
+            onLabel="View"
+            offLabel="Edit"
+          ></p-toggleButton>
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <br />
+
   <p-card>
     @if (!userGroceryListBasicFormInitialized) {
-      <br />
-      <ngx-skeleton-loader [theme]="{'height.x': 100, 'width.%': 50}"></ngx-skeleton-loader>
+    <br />
+    <ngx-skeleton-loader
+      [theme]="{ 'height.x': 100, 'width.%': 50 }"
+    ></ngx-skeleton-loader>
     } @else if (userGroceryListForm) {
     <h2>{{ userGroceryListForm.controls["name"].value }}</h2>
     }
@@ -39,20 +62,29 @@
       <div class="col">
         <div class="text-right">
           @if (!userGroceryListBasicFormInitialized) {
-            <ngx-skeleton-loader class="mr-1" [theme]="{'width.%': 8}"></ngx-skeleton-loader>
-            <ngx-skeleton-loader [theme]="{'width.%': 8}"></ngx-skeleton-loader>
+          <ngx-skeleton-loader
+            class="mr-1"
+            [theme]="{ 'width.%': 8 }"
+          ></ngx-skeleton-loader>
+          <ngx-skeleton-loader [theme]="{ 'width.%': 8 }"></ngx-skeleton-loader>
           } @else if (userGroceryListForm) {
           <p-button
             icon="pi pi-user-plus"
             severity="info"
             class="mr-1"
+            [disabled]="!edit"
           ></p-button>
           <p-button
             icon="pi pi-file-export"
             severity="secondary"
             class="mr-1"
+            [disabled]="!edit"
           ></p-button>
-          <p-button icon="pi pi-times" severity="danger"></p-button>
+          <p-button
+            icon="pi pi-times"
+            severity="danger"
+            [disabled]="!edit"
+          ></p-button>
           }
         </div>
       </div>
@@ -61,15 +93,17 @@
     <br />
 
     @if (!userGroceryListBasicFormInitialized) {
-      <ngx-skeleton-loader></ngx-skeleton-loader>
-      <ngx-skeleton-loader></ngx-skeleton-loader>
+    <ngx-skeleton-loader></ngx-skeleton-loader>
+    <ngx-skeleton-loader></ngx-skeleton-loader>
     <div class="grid">
-        <div class="col">
-          <div class="text-right">
-            <ngx-skeleton-loader [theme]="{'width.%': 20}"></ngx-skeleton-loader>
-          </div>
+      <div class="col">
+        <div class="text-right">
+          <ngx-skeleton-loader
+            [theme]="{ 'width.%': 15 }"
+          ></ngx-skeleton-loader>
         </div>
       </div>
+    </div>
     } @else if (userGroceryListForm) {
     <form [formGroup]="userGroceryListForm">
       <p-floatLabel>
@@ -79,6 +113,7 @@
           pInputText
           class="p-inputtext-sm w-full"
           formControlName="name"
+          [readOnly]="!edit"
         />
         <label for="name">Name</label>
       </p-floatLabel>
@@ -91,6 +126,7 @@
           pInputText
           class="p-inputtext-sm w-full"
           formControlName="description"
+          [readOnly]="!edit"
         />
         <label for="description">Description</label>
       </p-floatLabel>
@@ -103,6 +139,8 @@
               icon="pi pi-refresh"
               iconPos="right"
               type="button"
+              [disabled]="disableUserGroceryListBasicFormUpdation"
+              (onClick)="updateUserGroceryListBasicDetails()"
             ></p-button>
           </div>
         </div>
