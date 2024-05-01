@@ -4,6 +4,8 @@
 
 @if (disableInteraction) {
 <app-centered-progress-spinner-lg />
+} @else if (error) {
+  <app-error />
 } @else {
 <p-menubar
   class="sticky-top"
@@ -72,18 +74,17 @@
             icon="pi pi-user-plus"
             severity="info"
             class="mr-1"
-            [disabled]="!edit"
           ></p-button>
           <p-button
             icon="pi pi-file-export"
             severity="secondary"
             class="mr-1"
-            [disabled]="!edit"
+            (onClick)="exportUserGroceryListSummary()"
           ></p-button>
           <p-button
             icon="pi pi-times"
             severity="danger"
-            [disabled]="!edit"
+            (onClick)="deleteUserGroceryList()"
           ></p-button>
           }
         </div>

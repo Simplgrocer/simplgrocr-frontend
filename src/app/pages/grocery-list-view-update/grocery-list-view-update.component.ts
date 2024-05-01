@@ -37,7 +37,7 @@ import {
   GroceryListUpdationPayload,
   UserGroceryListResponse,
 } from '../../services/grocery-list.service';
-import { BehaviorSubject } from 'rxjs';
+import { ErrorComponent } from '../../components/error/error.component';
 
 @Component({
   selector: 'app-grocery-list-view-update',
@@ -63,6 +63,7 @@ import { BehaviorSubject } from 'rxjs';
     CommonModule,
     ToggleButtonModule,
     NgxSkeletonLoaderModule,
+    ErrorComponent,
     ProgressSpinnerSmComponent,
     ProgressSpinnerLgComponent,
     CenteredProgressSpinnerLgComponent,
@@ -72,14 +73,12 @@ import { BehaviorSubject } from 'rxjs';
 })
 export class GroceryListViewUpdateComponent implements OnInit {
   disableInteraction = false;
+  error = false;
   userGroceryListBasicFormInitialized = false;
   disableUserGroceryListBasicFormUpdationPreviousState = true;
   disableUserGroceryListBasicFormUpdation = true;
 
   edit = false;
-  editSubject: BehaviorSubject<boolean> = new BehaviorSubject<boolean>(
-    this.edit
-  );
 
   id: string | undefined;
   userGroceryList: UserGroceryListResponse | undefined;
@@ -138,7 +137,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
           this.userGroceryListBasicFormInitialized = true;
         },
         error: (error) => {
-          if (error.status === 404) {
+          if (error.status === 0) {
+            this.error = true;
+          } else if (error.status === 404) {
             this.router.navigate(['/not-found']);
           }
         },
@@ -193,5 +194,66 @@ export class GroceryListViewUpdateComponent implements OnInit {
           this.disableUserGroceryListBasicFormUpdation = true;
         },
       });
+  }
+
+  deleteUserGroceryList() {
+    this.confirmationService.confirm({
+      header: `Delete ${this.userGroceryListForm!.controls['name'].value}`,
+      message: 'Are you sure that you want to perform this action?',
+      defaultFocus: 'none',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: '',
+      accept: () => {
+        this.disableInteraction = true;
+
+        this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
+          next: () => {
+            this.disableInteraction = false;
+
+            this.router.navigate(['/']);
+          },
+          error: (error) => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to delete grocery list',
+            });
+          },
+        });
+      },
+      reject: () => {},
+    });
+  }
+
+  exportUserGroceryListSummary() {
+    this.disableInteraction = true;
+
+    this.groceryListService.exportUserGroceryListSummary(this.id!).subscribe({
+      next: (response: Blob) => {
+        const downloadLink = document.createElement('a');
+
+        const fileName = `${this.userGroceryListForm!.controls['name'].value} ${Date.now()}.pdf`;
+        
+        downloadLink.href = window.URL.createObjectURL(response);
+        downloadLink.download = fileName;
+        
+        downloadLink.dispatchEvent(new MouseEvent('click'));
+
+        this.disableInteraction = false;
+      },
+      error: (error) => {
+        this.disableInteraction = false;
+
+        this.messageService.add({
+          key: 'tr',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Unable to export grocery list',
+        });
+      },
+    });
   }
 }
