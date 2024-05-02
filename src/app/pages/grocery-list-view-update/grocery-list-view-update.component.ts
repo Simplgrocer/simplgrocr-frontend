@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, ViewportScroller } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
+  AbstractControl,
   FormArray,
   FormControl,
   FormGroup,
@@ -26,18 +27,26 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { MenubarModule } from 'primeng/menubar';
 import { PasswordModule } from 'primeng/password';
+import { ScrollTopModule } from 'primeng/scrolltop';
 import { ToastModule } from 'primeng/toast';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
+import { ErrorComponent } from '../../components/error/error.component';
 import { ProgressSpinnerLgComponent } from '../../components/progress-spinner-lg/progress-spinner-lg.component';
 import { ProgressSpinnerSmComponent } from '../../components/progress-spinner-sm/progress-spinner-sm.component';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import {
+  GroceryListItemCreationUpdationPayload,
   GroceryListService,
   GroceryListUpdationPayload,
+  UserGroceryListItemResponse,
   UserGroceryListResponse,
 } from '../../services/grocery-list.service';
-import { ErrorComponent } from '../../components/error/error.component';
+
+interface MeasurementUnit {
+  id: string;
+  value: 'Unit' | 'Kilogram' | 'Gram';
+}
 
 @Component({
   selector: 'app-grocery-list-view-update',
@@ -63,6 +72,7 @@ import { ErrorComponent } from '../../components/error/error.component';
     CommonModule,
     ToggleButtonModule,
     NgxSkeletonLoaderModule,
+    ScrollTopModule,
     ErrorComponent,
     ProgressSpinnerSmComponent,
     ProgressSpinnerLgComponent,
@@ -74,6 +84,7 @@ import { ErrorComponent } from '../../components/error/error.component';
 export class GroceryListViewUpdateComponent implements OnInit {
   disableInteraction = false;
   error = false;
+
   userGroceryListBasicFormInitialized = false;
   disableUserGroceryListBasicFormUpdationPreviousState = true;
   disableUserGroceryListBasicFormUpdation = true;
@@ -81,9 +92,21 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
   userGroceryListBasicFormEdit = false;
 
+  userGroceryListItemsFormArrayInitialized = false;
+
   id: string | undefined;
   userGroceryList: UserGroceryListResponse | undefined;
+  userGroceryListItems: UserGroceryListItemResponse[] | undefined;
+
+  userGroceryListItemActiveIndex = 0;
+
   userGroceryListForm: FormGroup | undefined;
+
+  measurementUnits: MeasurementUnit[] = [
+    { id: '1', value: 'Unit' },
+    { id: '2', value: 'Kilogram' },
+    { id: '3', value: 'Gram' },
+  ];
 
   constructor(
     private route: ActivatedRoute,
@@ -91,7 +114,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
     private router: Router,
     private messageService: MessageService,
     private primengConfig: PrimeNGConfig,
-    private confirmationService: ConfirmationService
+    private confirmationService: ConfirmationService,
+    private scroller: ViewportScroller
   ) {}
 
   ngOnInit(): void {
@@ -139,6 +163,52 @@ export class GroceryListViewUpdateComponent implements OnInit {
           });
 
           this.userGroceryListBasicFormInitialized = true;
+
+          this.groceryListService.getUserGroceryListItems(this.id!).subscribe({
+            next: (response: UserGroceryListItemResponse[]) => {
+              this.userGroceryListItems = response;
+
+              response.map((item) => {
+                (this.userGroceryListForm!.get('items') as FormArray).push(
+                  new FormGroup({
+                    name: new FormControl(item.name, [Validators.required]),
+                    description: new FormControl(item.description),
+                    rateMeasurementQuantity: new FormControl(
+                      item.rate_measurement_quantity,
+                      [Validators.required]
+                    ),
+                    rateMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.rate_measurement_unit
+                      )!.id,
+                      [Validators.required]
+                    ),
+                    rate: new FormControl(item.rate, [Validators.required]),
+                    quantityMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.quantity_measurement_unit
+                      )!.id,
+                      [Validators.required]
+                    ),
+                    quantity: new FormControl(item.quantity, [
+                      Validators.required,
+                    ]),
+                    price: new FormControl(item.price, [Validators.required]),
+                    edit: new FormControl(false)
+                  })
+                );
+              });
+
+              this.userGroceryListItemsFormArrayInitialized = true;
+            },
+            error: (error) => {
+              if (error.status === 0) {
+                this.error = true;
+              } else if (error.status === 404) {
+                this.router.navigate(['/not-found']);
+              }
+            },
+          });
         },
         error: (error) => {
           if (error.status === 0) {
@@ -276,5 +346,140 @@ export class GroceryListViewUpdateComponent implements OnInit {
         });
       },
     });
+  }
+
+  getItemsArrayControls(): AbstractControl<any, any>[] {
+    return (this.userGroceryListForm!.get('items') as FormArray).controls;
+  }
+
+  deleteUserGroceryListItem(index: number): void {
+    this.confirmationService.confirm({
+      header: `Delete ${this.userGroceryListItems![index].name}`,
+      message: 'Are you sure that you want to perform this action?',
+      defaultFocus: 'none',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: '',
+      accept: () => {
+        this.disableInteraction = true;
+
+        const userGroceryListItemsFormArray = this.userGroceryListForm!.get(
+          'items'
+        ) as FormArray;
+
+        const id = this.userGroceryListItems![index].id;
+
+        const oldPrice = (
+          userGroceryListItemsFormArray.controls[index] as FormGroup
+        ).controls['price'].value;
+
+        this.groceryListService
+          .deleteUserGroceryListItem(this.id!, id as unknown as string)
+          .subscribe({
+            next: () => {
+              this.userGroceryListItems!.splice(index, 1);
+
+              (this.userGroceryListForm!.get('items') as FormArray).removeAt(
+                index
+              );
+
+              this.userGroceryListForm!.controls['totalPrice'].setValue(
+                this.userGroceryListForm!.controls['totalPrice'].value -
+                  oldPrice
+              );
+
+              this.disableInteraction = false;
+            },
+            error: (error) => {
+              this.disableInteraction = false;
+
+              this.messageService.add({
+                key: 'tr',
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Unable to delete item',
+              });
+            },
+          });
+      },
+      reject: () => {},
+    });
+  }
+
+  addUserGroceryListItem(): void {
+    this.disableInteraction = true;
+
+    const groceryListItemObject: GroceryListItemCreationUpdationPayload = {
+      name: '',
+      description: '',
+      rate_measurement_quantity: 0,
+      rate_measurement_unit: 'Unit',
+      rate: 0,
+      quantity_measurement_unit: 'Unit',
+      quantity: 0,
+      price: 0,
+    };
+
+    this.groceryListService
+      .createUserGroceryListItem(this.id!, groceryListItemObject)
+      .subscribe({
+        next: (response: UserGroceryListItemResponse) => {
+          this.userGroceryListItems!.push(response);
+
+          (this.userGroceryListForm!.get('items') as FormArray).push(
+            new FormGroup({
+              name: new FormControl(response.name, [Validators.required]),
+              description: new FormControl(response.description),
+              rateMeasurementQuantity: new FormControl(
+                response.rate_measurement_quantity,
+                [Validators.required]
+              ),
+              rateMeasurementUnit: new FormControl(
+                this.measurementUnits.find(
+                  (obj) => obj.value === response.rate_measurement_unit
+                )!.id,
+                [Validators.required]
+              ),
+              rate: new FormControl(response.rate, [Validators.required]),
+              quantityMeasurementUnit: new FormControl(
+                this.measurementUnits.find(
+                  (obj) => obj.value === response.quantity_measurement_unit
+                )!.id,
+                [Validators.required]
+              ),
+              quantity: new FormControl(response.quantity, [
+                Validators.required,
+              ]),
+              price: new FormControl(response.price, [Validators.required]),
+              edit: new FormControl(false)
+            })
+          );
+
+          this.disableInteraction = false;
+
+          // this.userGroceryListItemActiveIndex =
+          //   this.userGroceryListItems!.length - 1;
+
+          // const accordionElement = document.querySelector(
+          //   `.accordion-tab[data-index="${this.userGroceryListItemActiveIndex}"]`
+          // );
+
+          // if (accordionElement) {
+          //   accordionElement.scrollIntoView({
+          //     behavior: 'smooth',
+          //     block: 'start',
+          //   });
+          // }
+        },
+        error: (error) => {
+          this.disableInteraction = false;
+
+          this.messageService.add({
+            key: 'tr',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unable to add item',
+          });
+        },
+      });
   }
 }

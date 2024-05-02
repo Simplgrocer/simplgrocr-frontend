@@ -25,7 +25,6 @@ export interface GroceryListItemCreationUpdationPayload {
   quantity_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
   quantity: number;
   price: number;
-  grocery_list: number;
 }
 
 export interface UserGroceryListResponse {
@@ -185,7 +184,7 @@ export class GroceryListService {
   }
 
   getUserGroceryListItems(
-    id: number
+    id: string
   ): Observable<UserGroceryListItemResponse[]> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,

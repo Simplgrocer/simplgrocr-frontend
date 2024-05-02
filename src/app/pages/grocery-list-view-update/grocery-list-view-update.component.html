@@ -1,6 +1,7 @@
 <p-toast></p-toast>
 <p-toast position="top-right" key="tr"></p-toast>
 <p-confirmDialog></p-confirmDialog>
+<p-scrollTop></p-scrollTop>
 
 @if (disableInteraction) {
 <app-centered-progress-spinner-lg />
@@ -31,27 +32,6 @@
 
 <div class="container content">
   <p-card>
-    <div class="grid">
-      <div class="col">
-        <div class="text-right">
-          @if (!userGroceryListBasicFormInitialized) {
-          <ngx-skeleton-loader
-            [theme]="{ 'width.%': 10 }"
-          ></ngx-skeleton-loader>
-          } @else if (userGroceryListForm) {
-          <div class="text-right">
-            <p-toggleButton
-              [(ngModel)]="userGroceryListBasicFormEdit"
-              (ngModelChange)="onUserGroceryListBasicFormEditButtonChange($event)"
-              onLabel="View"
-              offLabel="Edit"
-            ></p-toggleButton>
-          </div>
-          }
-        </div>
-      </div>
-    </div>
-
     @if (!userGroceryListBasicFormInitialized) {
     <br />
     <ngx-skeleton-loader
@@ -65,7 +45,7 @@
         <div class="text-right">
           @if (!userGroceryListBasicFormInitialized) {
           <ngx-skeleton-loader
-            class="mr-1"
+            class="mr-2"
             [theme]="{ 'width.%': 8 }"
           ></ngx-skeleton-loader>
           <ngx-skeleton-loader [theme]="{ 'width.%': 8 }"></ngx-skeleton-loader>
@@ -73,14 +53,21 @@
           <p-button
             icon="pi pi-user-plus"
             severity="info"
-            class="mr-1"
+            class="mr-2"
           ></p-button>
           <p-button
             icon="pi pi-file-export"
             severity="secondary"
-            class="mr-1"
+            class="mr-2"
             (onClick)="exportUserGroceryListSummary()"
           ></p-button>
+          <p-toggleButton
+            [(ngModel)]="userGroceryListBasicFormEdit"
+            (ngModelChange)="onUserGroceryListBasicFormEditButtonChange($event)"
+            class="mr-2"
+            onIcon="pi pi-eye"
+            offIcon="pi pi-pencil"
+          ></p-toggleButton>
           <p-button
             icon="pi pi-times"
             severity="danger"
@@ -100,7 +87,7 @@
       <div class="col">
         <div class="text-right">
           <ngx-skeleton-loader
-            class="mr-1"
+            class="mr-2"
             [theme]="{ 'width.%': 15 }"
           ></ngx-skeleton-loader>
           <ngx-skeleton-loader
@@ -141,7 +128,7 @@
           <div class="text-right">
             <p-button
               label="Update"
-              class="mr-1"
+              class="mr-2"
               icon="pi pi-refresh"
               iconPos="right"
               type="button"
@@ -161,194 +148,126 @@
           </div>
         </div>
       </div>
-    </form>
-    }
-  </p-card>
-</div>
-}
-
-<!-- <div class="container content">
-  @if (!userGroceryListBasicFormInitialized) {
-  <p-card>
-    <p-skeleton height="2rem" width="15rem" styleClass="mb-2"></p-skeleton>
-    <div class="grid">
-      <div class="col">
-        <div class="text-right">
-          <p-skeleton height="3rem" width="3rem" styleClass="mb-2"></p-skeleton>
-        </div>
-      </div>
-    </div>
-    <p-skeleton height="2rem" styleClass="mb-2"></p-skeleton>
-    <p-skeleton width="10rem" height="4rem"></p-skeleton>
-  </p-card>
-  } @else if (userGroceryListForm) {
-  <p-card>
-    <div class="grid">
-      <div class="col">
-        <div class="text-right">
-          <p-button
-            icon="pi pi-user-plus"
-            severity="info"
-            class="mr-1"
-          ></p-button>
-          <p-button
-            icon="pi pi-file-export"
-            severity="secondary"
-            class="mr-1"
-          ></p-button>
-          <p-button icon="pi pi-times" severity="danger"></p-button>
-        </div>
-      </div>
-    </div>
-
-    <br />
-
-    <form [formGroup]="userGroceryListForm">
-      <p-floatLabel>
-        <input
-          id="name"
-          type="text"
-          pInputText
-          class="p-inputtext-sm w-full"
-          formControlName="name"
-        />
-        <label for="name">Name</label>
-      </p-floatLabel>
-      <br />
-      <br />
-      <p-floatLabel>
-        <input
-          id="description"
-          type="text"
-          pInputText
-          class="p-inputtext-sm w-full"
-          formControlName="description"
-        />
-        <label for="description">Description</label>
-      </p-floatLabel>
-      <br />
-      <div class="grid">
-        <div class="col">
-          <div class="text-right">
-            <p-button
-              label="Update"
-              icon="pi pi-refresh"
-              iconPos="right"
-              type="button"
-            ></p-button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </p-card>
-  }
-</div>
-} -->
-<!-- @if (disableInteraction) {
-<app-centered-progress-spinner />
-} @else {
-<p-menubar
-  class="sticky-top"
-  [style]="{
-    top: '60px',
-    'background-color': 'rgba(255, 255, 255, 0.9)',
-    'backdrop-filter': 'blur(5px)',
-    border: 'none',
-    'box-shadow': 'none'
-  }"
->
-  <ng-template pTemplate="start">
-    <h2>Total price</h2>
-  </ng-template>
-  @if (userGroceryListForm) {
-  <ng-template pTemplate="end">
-    <h2>{{ userGroceryListForm.controls["totalPrice"].value }}</h2>
-  </ng-template>
-  }
-</p-menubar>
-
-<div class="container content">
-  @if (userGroceryListForm) {
-  <p-card header="{{ userGroceryListForm.controls['name'].value }}">
-    <div class="grid">
-      <div class="col">
-        <div class="text-right">
-          <p-button
-            icon="pi pi-user-plus"
-            severity="info"
-            class="mr-1"
-          ></p-button>
-          <p-button
-            icon="pi pi-file-export"
-            severity="secondary"
-            class="mr-1"
-            (onClick)="exportUserGroceryListSummary()"
-          ></p-button>
-          <p-button
-            icon="pi pi-times"
-            severity="danger"
-            (click)="deleteUserGroceryList()"
-          ></p-button>
-        </div>
-      </div>
-    </div>
-
-    <br />
-
-    <form [formGroup]="userGroceryListForm">
-      <p-floatLabel>
-        <input
-          id="name"
-          type="text"
-          pInputText
-          class="p-inputtext-sm w-full"
-          formControlName="name"
-        />
-        <label for="name">Name</label>
-      </p-floatLabel>
-      <br />
-      <br />
-      <p-floatLabel>
-        <input
-          id="description"
-          type="text"
-          pInputText
-          class="p-inputtext-sm w-full"
-          formControlName="description"
-        />
-        <label for="description">Description</label>
-      </p-floatLabel>
-      <br />
-      <div class="grid">
-        <div class="col">
-          <div class="text-right">
-            <p-button
-              label="Update"
-              icon="pi pi-refresh"
-              iconPos="right"
-              type="button"
-              [disabled]="disableUserGroceryListBasicFormUpdation"
-              (onClick)="updateUserGroceryListBasicDetails()"
-            ></p-button>
-          </div>
-        </div>
-      </div>
 
       <h4>Items</h4>
 
+      @if (!userGroceryListItemsFormArrayInitialized) {
+      <p-accordion [activeIndex]="0">
+        <p-accordionTab>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <div class="grid">
+            <div class="col">
+              <h4>Total price</h4>
+            </div>
+            <div class="col">
+              <div class="text-right">
+                <app-progress-spinner-sm />
+              </div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+      <p-accordion [activeIndex]="0">
+        <p-accordionTab>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <div class="grid">
+            <div class="col">
+              <h4>Total price</h4>
+            </div>
+            <div class="col">
+              <div class="text-right">
+                <app-progress-spinner-sm />
+              </div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+      } @else {
       <div formArrayName="items">
-        <p-accordion [activeIndex]="0">
+        <p-accordion [activeIndex]="userGroceryListItemActiveIndex">
           @for (control of getItemsArrayControls(); track control; let index =
           $index) {
           <div formGroupName="{{ index }}">
-            <p-accordionTab header="{{ control.get('name')?.value }}">
+            <p-accordionTab class="accordion-tab" header="{{ control.get('name')?.value }}" [attr.data-index]="index">
               <div class="grid">
                 <div class="col">
                   <div class="text-right">
+                    <p-toggleButton
+                      formControlName="edit"
+                      class="mr-2"
+                      onIcon="pi pi-eye"
+                      offIcon="pi pi-pencil"
+                    ></p-toggleButton>
                     <p-button
                       icon="pi pi-times"
                       severity="danger"
-                      (click)="deleteUserGroceryListItem(index)"
+                      (onFocus)="deleteUserGroceryListItem(index)"
                     ></p-button>
                   </div>
                 </div>
@@ -362,6 +281,7 @@
                     pInputText
                     class="p-inputtext-sm w-full"
                     formControlName="name"
+                    [readOnly]="!control.get('edit')?.value"
                   />
                   <label for="name">Name</label>
                 </p-floatLabel>
@@ -374,6 +294,7 @@
                     pInputText
                     class="p-inputtext-sm w-full"
                     formControlName="description"
+                    [readOnly]="!control.get('edit')?.value"
                   />
                   <label for="description">Description</label>
                 </p-floatLabel>
@@ -388,6 +309,7 @@
                     class="p-inputtext-sm w-full"
                     styleClass="w-full"
                     formControlName="rateMeasurementQuantity"
+                    [readonly]="!control.get('edit')?.value"
                   />
                   <label for="rate_measurement_quantity"
                     >Rate Measurement Quantity</label
@@ -403,6 +325,7 @@
                     [editable]="true"
                     optionLabel="value"
                     placeholder="Rate Measurement Unit"
+                    [readonly]="!control.get('edit')?.value"
                   ></p-dropdown>
                   <label for="rate_measurement_unit"
                     >Rate Measurement Unit</label
@@ -419,6 +342,7 @@
                     class="p-inputtext-sm w-full"
                     styleClass="w-full"
                     formControlName="rate"
+                    [readonly]="!control.get('edit')?.value"
                   />
                   <label for="rate">Rate</label>
                 </p-floatLabel>
@@ -432,6 +356,7 @@
                     [editable]="true"
                     optionLabel="value"
                     placeholder="Quantity Measurement Unit"
+                    [readonly]="!control.get('edit')?.value"
                   ></p-dropdown>
                   <label for="quantity_measurement_unit"
                     >Quantity Measurement Unit</label
@@ -448,6 +373,7 @@
                     class="p-inputtext-sm w-full"
                     styleClass="w-full"
                     formControlName="quantity"
+                    [readonly]="!control.get('edit')?.value"
                   />
                   <label for="quantity">Quantity</label>
                 </p-floatLabel>
@@ -467,11 +393,22 @@
                   <div class="text-right">
                     <p-button
                       label="Update"
+                      class="mr-2"
                       icon="pi pi-refresh"
                       iconPos="right"
                       type="button"
+                      severity="success"
                       [disabled]="disableUserGroceryListBasicFormUpdation"
                       (onClick)="updateUserGroceryListBasicDetails()"
+                    ></p-button>
+                    <p-button
+                      label="Reset"
+                      icon="pi pi-undo"
+                      iconPos="right"
+                      type="button"
+                      severity="secondary"
+                      [disabled]="!resetUserGroceryListBasicForm"
+                      (onClick)="resetUserGroceryListFormBasicDetails()"
                     ></p-button>
                   </div>
                 </div>
@@ -481,6 +418,7 @@
           }
         </p-accordion>
       </div>
+      @if (userGroceryListItemsFormArrayInitialized) {
       <br />
       <div class="grid">
         <div class="col">
@@ -495,8 +433,9 @@
           </div>
         </div>
       </div>
+      } }
     </form>
+    }
   </p-card>
-  }
 </div>
-} -->
+}
