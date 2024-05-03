@@ -516,12 +516,12 @@ export class GroceryListViewUpdateComponent implements OnInit {
         rateMeasurementQuantityControl.value !==
         this.userGroceryListItems[index].rate_measurement_quantity;
       const rateMeasurementUnitChanged =
-        rateMeasurementUnitControl.value !==
+        rateMeasurementUnitControl.value.value !==
         this.userGroceryListItems[index].rate_measurement_unit;
       const rateChanged =
         rateControl.value !== this.userGroceryListItems[index].rate;
       const quantityMeasurementUnitChanged =
-        quantityMeasurementUnitControl.value !==
+        quantityMeasurementUnitControl.value.value !==
         this.userGroceryListItems[index].quantity_measurement_unit;
       const quantityChanged =
         quantityControl.value !== this.userGroceryListItems[index].quantity;
@@ -551,15 +551,79 @@ export class GroceryListViewUpdateComponent implements OnInit {
           quantityMeasurementUnitChanged ||
           quantityChanged);
 
+      const willPriceChange =
+        rateMeasurementQuantityValid &&
+        rateMeasurementUnitValid &&
+        rateValid &&
+        quantityMeasurementUnitValid &&
+        quantityValid &&
+        (rateMeasurementQuantityChanged ||
+          rateMeasurementUnitChanged ||
+          rateChanged ||
+          quantityMeasurementUnitChanged ||
+          quantityChanged);
+
+      const updatedPrice = willPriceChange
+        ? this.groceryListService.getItemPrice(
+            rateMeasurementQuantityControl.value,
+            rateMeasurementUnitControl.value.value,
+            rateControl.value,
+            quantityMeasurementUnitControl.value.value,
+            quantityControl.value
+          )
+        : null;
+
       this.getItemsArrayControls()[index].patchValue({
         updatePrevState: updateState,
         updateCurrentState: updateState,
         resetCurrentState: updateState,
+        ...(updatedPrice ? { price: updatedPrice } : {}),
       });
+
+      if (updatedPrice) {
+        this.userGroceryListForm?.patchValue({
+          totalPrice:
+            this.userGroceryListForm?.controls['totalPrice'].value +
+            updatedPrice -
+            this.userGroceryListItems[index].price,
+        });
+      }
     }
   }
 
-  resetUserGroceryLisItem(index: number) {}
+  resetUserGroceryLisItem(index: number) {
+    if (this.userGroceryListForm && this.userGroceryListItems) {
+      this.userGroceryListForm.patchValue({
+        totalPrice:
+          this.userGroceryListForm.get('totalPrice')!.value +
+          this.userGroceryListItems[index].price -
+          this.getItemsArrayControls()[index].get('price')!.value,
+      });
+
+      this.getItemsArrayControls()[index].patchValue({
+        name: this.userGroceryListItems[index].name,
+        description: this.userGroceryListItems[index].description,
+        rateMeasurementQuantity:
+          this.userGroceryListItems[index].rate_measurement_quantity,
+        rateMeasurementUnit: this.measurementUnits.find(
+          (obj) =>
+            obj.value ===
+            this.userGroceryListItems![index].rate_measurement_unit
+        ),
+        rate: this.userGroceryListItems[index].rate,
+        quantityMeasurementUnit: this.measurementUnits.find(
+          (obj) =>
+            obj.value ===
+            this.userGroceryListItems![index].quantity_measurement_unit
+        ),
+        quantity: this.userGroceryListItems[index].quantity,
+        price: this.userGroceryListItems[index].price,
+        updatePrevState: false,
+        updateCurrentState: false,
+        resetCurrentState: false,
+      });
+    }
+  }
 
   updateUserGroceryListItem(index: number): void {
     if (this.userGroceryListItems) {
@@ -620,14 +684,19 @@ export class GroceryListViewUpdateComponent implements OnInit {
         ...(rateChanged ? { rate: rateControl.value } : {}),
         ...(quantityMeasurementUnitChanged
           ? {
-              quantity_measurement_unit: quantityMeasurementUnitControl.value.value,
+              quantity_measurement_unit:
+                quantityMeasurementUnitControl.value.value,
             }
           : {}),
         ...(quantityChanged ? { quantity: quantityControl.value } : {}),
       };
 
       this.groceryListService
-        .updatePatchUserGroceryListItem(this.id!, id as unknown as string, userGroceryListItemPayload)
+        .updatePatchUserGroceryListItem(
+          this.id!,
+          id as unknown as string,
+          userGroceryListItemPayload
+        )
         .subscribe({
           next: (response: UserGroceryListItemResponse) => {
             this.userGroceryListItems![index] = response;
