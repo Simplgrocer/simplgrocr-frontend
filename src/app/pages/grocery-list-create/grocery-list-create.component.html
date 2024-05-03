@@ -32,13 +32,18 @@
         <label for="description">Description</label>
       </p-floatLabel>
       <br />
-      <p-button
-        label="Create"
-        icon="pi pi-plus"
-        iconPos="right"
-        type="submit"
-        [disabled]="disableUserGroceryListFormSubmission"
-      ></p-button>
+      <div class="grid">
+        <div class="col">
+          <div class="text-right">
+            <p-button
+              icon="pi pi-check"
+              iconPos="right"
+              type="submit"
+              [disabled]="disableUserGroceryListFormSubmission"
+            ></p-button>
+          </div>
+        </div>
+      </div>
     </form>
   </p-card>
 </div>

@@ -33,24 +33,24 @@
 
 @media (min-width: 576px) {
   .container {
-    max-width: 640px;
+    max-width: 660px;
   }
 }
 
 @media (min-width: 768px) {
   .container {
-    max-width: 780px;
+    max-width: 800px;
   }
 }
 
 @media (min-width: 992px) {
   .container {
-    max-width: 1024px;
+    max-width: 1050px;
   }
 }
 
 @media (min-width: 1200px) {
   .container {
-    max-width: 1180px;
+    max-width: 1240px;
   }
 }
