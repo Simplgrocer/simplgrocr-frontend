@@ -2,6 +2,20 @@
 <app-centered-progress-spinner-lg />
 } @else {
 <div class="container content">
+  <div class="grid">
+    <div class="col">
+      <div class="text-right">
+        <p-button
+          class="mr-2"
+          icon="pi pi-plus"
+          iconPos="right"
+          type="button"
+          (onClick)="directToGroceryListPage()"
+        ></p-button>
+      </div>
+    </div>
+  </div>
+
   <h1>Your lists</h1>
 
   @for (groceryList of groceryLists; track groceryList.id) {

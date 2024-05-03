@@ -34,6 +34,10 @@ export class IndexComponent implements OnInit {
     });
   }
 
+  directToGroceryListPage() {
+    this.router.navigate([`grocery-list`]);
+  }
+
   expandUserGroceryList(id: number) {
     this.router.navigate([`grocery-list/${id}`]);
   }
