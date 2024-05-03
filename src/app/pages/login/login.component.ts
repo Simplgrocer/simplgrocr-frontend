@@ -15,7 +15,7 @@ import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ToastModule } from 'primeng/toast';
-import { CenteredProgressSpinnerComponent } from '../../components/centered-progress-spinner/centered-progress-spinner.component';
+import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
 import { LoginResponse, LoginService } from '../../services/login.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -33,7 +33,7 @@ import { AuthService } from '../../services/auth.service';
     DividerModule,
     ToastModule,
     CommonModule,
-    CenteredProgressSpinnerComponent,
+    CenteredProgressSpinnerLgComponent,
   ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
