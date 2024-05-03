@@ -36,7 +36,7 @@ import { ProgressSpinnerLgComponent } from '../../components/progress-spinner-lg
 import { ProgressSpinnerSmComponent } from '../../components/progress-spinner-sm/progress-spinner-sm.component';
 import { ContentEditableDirective } from '../../directives/content-editable.directive';
 import {
-  GroceryListItemCreationUpdationPayload,
+  GroceryListItemCreationPayload,
   GroceryListService,
   GroceryListUpdationPayload,
   UserGroceryListItemResponse,
@@ -180,21 +180,24 @@ export class GroceryListViewUpdateComponent implements OnInit {
                     rateMeasurementUnit: new FormControl(
                       this.measurementUnits.find(
                         (obj) => obj.value === item.rate_measurement_unit
-                      )!.id,
+                      ),
                       [Validators.required]
                     ),
                     rate: new FormControl(item.rate, [Validators.required]),
                     quantityMeasurementUnit: new FormControl(
                       this.measurementUnits.find(
                         (obj) => obj.value === item.quantity_measurement_unit
-                      )!.id,
+                      ),
                       [Validators.required]
                     ),
                     quantity: new FormControl(item.quantity, [
                       Validators.required,
                     ]),
                     price: new FormControl(item.price, [Validators.required]),
-                    edit: new FormControl(false)
+                    edit: new FormControl(false),
+                    updatePreviousState: new FormControl(false),
+                    updateCurrentState: new FormControl(false),
+                    resetCurrentState: new FormControl(false),
                   })
                 );
               });
@@ -408,7 +411,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   addUserGroceryListItem(): void {
     this.disableInteraction = true;
 
-    const groceryListItemObject: GroceryListItemCreationUpdationPayload = {
+    const groceryListItemObject: GroceryListItemCreationPayload = {
       name: '',
       description: '',
       rate_measurement_quantity: 0,
@@ -436,21 +439,24 @@ export class GroceryListViewUpdateComponent implements OnInit {
               rateMeasurementUnit: new FormControl(
                 this.measurementUnits.find(
                   (obj) => obj.value === response.rate_measurement_unit
-                )!.id,
+                ),
                 [Validators.required]
               ),
               rate: new FormControl(response.rate, [Validators.required]),
               quantityMeasurementUnit: new FormControl(
                 this.measurementUnits.find(
                   (obj) => obj.value === response.quantity_measurement_unit
-                )!.id,
+                ),
                 [Validators.required]
               ),
               quantity: new FormControl(response.quantity, [
                 Validators.required,
               ]),
               price: new FormControl(response.price, [Validators.required]),
-              edit: new FormControl(false)
+              edit: new FormControl(false),
+              updatePreviousState: new FormControl(false),
+              updateCurrentState: new FormControl(false),
+              resetCurrentState: new FormControl(false),
             })
           );
 
@@ -481,5 +487,164 @@ export class GroceryListViewUpdateComponent implements OnInit {
           });
         },
       });
+  }
+
+  onUserGroceryListItemPropChange(index: number): void {
+    if (this.userGroceryListItems) {
+      const nameControl = this.getItemsArrayControls()[index].get('name')!;
+      const descriptionControl =
+        this.getItemsArrayControls()[index].get('description')!;
+      const rateMeasurementQuantityControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementQuantity')!;
+      const rateMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementUnit')!;
+      const rateControl = this.getItemsArrayControls()[index].get('rate')!;
+      const quantityMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('quantityMeasurementUnit')!;
+      const quantityControl =
+        this.getItemsArrayControls()[index].get('quantity')!;
+
+      const nameChanged =
+        nameControl.value !== this.userGroceryListItems[index].name;
+      const descriptionChanged =
+        descriptionControl.value !==
+        this.userGroceryListItems[index].description;
+      const rateMeasurementQuantityChanged =
+        rateMeasurementQuantityControl.value !==
+        this.userGroceryListItems[index].rate_measurement_quantity;
+      const rateMeasurementUnitChanged =
+        rateMeasurementUnitControl.value !==
+        this.userGroceryListItems[index].rate_measurement_unit;
+      const rateChanged =
+        rateControl.value !== this.userGroceryListItems[index].rate;
+      const quantityMeasurementUnitChanged =
+        quantityMeasurementUnitControl.value !==
+        this.userGroceryListItems[index].quantity_measurement_unit;
+      const quantityChanged =
+        quantityControl.value !== this.userGroceryListItems[index].quantity;
+
+      const nameValid = nameControl.valid;
+      const descriptionValid = descriptionControl.valid;
+      const rateMeasurementQuantityValid = rateMeasurementQuantityControl.valid;
+      const rateMeasurementUnitValid = rateMeasurementUnitControl.valid;
+      const rateValid = rateControl.valid;
+      const quantityMeasurementUnitValid = quantityMeasurementUnitControl.valid;
+      const quantityValid = quantityControl.valid;
+
+      const updateState =
+        nameValid &&
+        descriptionValid &&
+        rateMeasurementQuantityValid &&
+        rateMeasurementUnitValid &&
+        rateValid &&
+        quantityMeasurementUnitValid &&
+        quantityValid &&
+        this.getItemsArrayControls()[index].get('edit')!.value &&
+        (nameChanged ||
+          descriptionChanged ||
+          rateMeasurementQuantityChanged ||
+          rateMeasurementUnitChanged ||
+          rateChanged ||
+          quantityMeasurementUnitChanged ||
+          quantityChanged);
+
+      this.getItemsArrayControls()[index].patchValue({
+        updatePrevState: updateState,
+        updateCurrentState: updateState,
+        resetCurrentState: updateState,
+      });
+    }
+  }
+
+  resetUserGroceryLisItem(index: number) {}
+
+  updateUserGroceryListItem(index: number): void {
+    if (this.userGroceryListItems) {
+      this.disableInteraction = true;
+
+      const id = this.userGroceryListItems[index].id;
+
+      const nameControl = this.getItemsArrayControls()[index].get('name')!;
+      const descriptionControl =
+        this.getItemsArrayControls()[index].get('description')!;
+      const rateMeasurementQuantityControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementQuantity')!;
+      const rateMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementUnit')!;
+      const rateControl = this.getItemsArrayControls()[index].get('rate')!;
+      const quantityMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('quantityMeasurementUnit')!;
+      const quantityControl =
+        this.getItemsArrayControls()[index].get('quantity')!;
+
+      const nameChanged =
+        nameControl.value !== this.userGroceryListItems[index].name;
+      const descriptionChanged =
+        descriptionControl.value !==
+        this.userGroceryListItems[index].description;
+      const rateMeasurementQuantityChanged =
+        rateMeasurementQuantityControl.value !==
+        this.userGroceryListItems[index].rate_measurement_quantity;
+      const rateMeasurementUnitChanged =
+        rateMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].rate_measurement_unit;
+      const rateChanged =
+        rateControl.value !== this.userGroceryListItems[index].rate;
+      const quantityMeasurementUnitChanged =
+        quantityMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].quantity_measurement_unit;
+      const quantityChanged =
+        quantityControl.value !== this.userGroceryListItems[index].quantity;
+
+      const userGroceryListItemPayload = {
+        ...(nameChanged ? { name: nameControl.value } : {}),
+        ...(descriptionChanged
+          ? { description: descriptionControl.value }
+          : {}),
+        ...(rateMeasurementQuantityChanged
+          ? {
+              rate_measurement_quantity: rateMeasurementQuantityControl.value,
+            }
+          : {}),
+        ...(rateMeasurementUnitChanged
+          ? {
+              rate_measurement_unit: rateMeasurementUnitControl.value.value,
+            }
+          : {}),
+        ...(rateChanged ? { rate: rateControl.value } : {}),
+        ...(quantityMeasurementUnitChanged
+          ? {
+              quantity_measurement_unit: quantityMeasurementUnitControl.value.value,
+            }
+          : {}),
+        ...(quantityChanged ? { quantity: quantityControl.value } : {}),
+      };
+
+      this.groceryListService
+        .updatePatchUserGroceryListItem(this.id!, id as unknown as string, userGroceryListItemPayload)
+        .subscribe({
+          next: (response: UserGroceryListItemResponse) => {
+            this.userGroceryListItems![index] = response;
+
+            this.disableInteraction = false;
+          },
+          error: (error) => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to update item',
+            });
+          },
+        });
+    }
   }
 }

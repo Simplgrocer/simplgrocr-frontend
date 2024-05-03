@@ -282,6 +282,7 @@
                     class="p-inputtext-sm w-full"
                     formControlName="name"
                     [readOnly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
                   />
                   <label for="name">Name</label>
                 </p-floatLabel>
@@ -295,6 +296,7 @@
                     class="p-inputtext-sm w-full"
                     formControlName="description"
                     [readOnly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
                   />
                   <label for="description">Description</label>
                 </p-floatLabel>
@@ -310,6 +312,7 @@
                     styleClass="w-full"
                     formControlName="rateMeasurementQuantity"
                     [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
                   />
                   <label for="rate_measurement_quantity"
                     >Rate Measurement Quantity</label
@@ -322,10 +325,10 @@
                     id="rate_measurement_unit"
                     formControlName="rateMeasurementUnit"
                     [options]="measurementUnits"
-                    [editable]="true"
                     optionLabel="value"
                     placeholder="Rate Measurement Unit"
                     [readonly]="!control.get('edit')?.value"
+                    (change)="onUserGroceryListItemPropChange(index)"
                   ></p-dropdown>
                   <label for="rate_measurement_unit"
                     >Rate Measurement Unit</label
@@ -343,6 +346,7 @@
                     styleClass="w-full"
                     formControlName="rate"
                     [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
                   />
                   <label for="rate">Rate</label>
                 </p-floatLabel>
@@ -357,6 +361,7 @@
                     optionLabel="value"
                     placeholder="Quantity Measurement Unit"
                     [readonly]="!control.get('edit')?.value"
+                    (change)="onUserGroceryListItemPropChange(index)"
                   ></p-dropdown>
                   <label for="quantity_measurement_unit"
                     >Quantity Measurement Unit</label
@@ -374,6 +379,7 @@
                     styleClass="w-full"
                     formControlName="quantity"
                     [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
                   />
                   <label for="quantity">Quantity</label>
                 </p-floatLabel>
@@ -398,8 +404,8 @@
                       iconPos="right"
                       type="button"
                       severity="success"
-                      [disabled]="disableUserGroceryListBasicFormUpdation"
-                      (onClick)="updateUserGroceryListBasicDetails()"
+                      [disabled]="!control.get('updateCurrentState')?.value"
+                      (onClick)="updateUserGroceryListItem(index)"
                     ></p-button>
                     <p-button
                       label="Reset"
@@ -407,7 +413,7 @@
                       iconPos="right"
                       type="button"
                       severity="secondary"
-                      [disabled]="!resetUserGroceryListBasicForm"
+                      [disabled]="!control.get('resetCurrentState')?.value"
                       (onClick)="resetUserGroceryListFormBasicDetails()"
                     ></p-button>
                   </div>
