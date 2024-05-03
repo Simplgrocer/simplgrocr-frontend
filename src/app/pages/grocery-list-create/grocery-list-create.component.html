@@ -1,53 +1,45 @@
-<div class="row navbar price-div sticky-top py-3">
-  <div class="col">
-    <label class="form-label">Total</label>
-  </div>
-  <div class="col text-end">
-    <label class="form-label">{{
-      groceryListForm.controls["totalPrice"].value
-    }}</label>
-  </div>
-</div>
-
-<br />
-<br />
-
-@if (groceryListFormStatus === 'NotSubmitted' || groceryListFormStatus ===
-'SubmissionError') { @if (groceryListFormStatus === 'SubmissionError') {
-<div class="alert alert-danger" role="alert">
-  <span class="alert-icon"><span class="visually-hidden">Error</span></span>
-  <p>{{ groceryListFormMessage }}></p>
-</div>
-
-}
-<form [formGroup]="groceryListForm" (ngSubmit)="createUserGroceryList()">
-  <div class="mb-3">
-    <label class="form-label">Name</label>
-    <input type="text" class="form-control" formControlName="name" required />
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Description</label>
-    <div
-      class="form-control"
-      formControlName="description"
-      required
-      appContentEditable
-      contenteditable="true"
-      aria-multiline="true"
-    ></div>
-  </div>
-
-  <div class="text-end">
-    <button type="submit" class="btn btn-primary">Create</button>
-  </div>
-</form>
-} @else if (groceryListFormStatus === 'InProgress') {
-<div class="row align-items-center text-center" style="min-height: 70vh">
-  <div class="col-12">
-    <div class="spinner-border spinner-border-lg text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
-    </div>
-  </div>
+<p-toast></p-toast>
+<p-toast position="top-right" key="tr"></p-toast>
+@if (disableInteraction) {
+<app-centered-progress-spinner-lg />
+} @else {
+<div class="container content">
+  <p-card header="New list">
+    <form
+      [formGroup]="userGroceryListForm"
+      (ngSubmit)="createUserGroceryList()"
+    >
+      <p-floatLabel>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="name"
+        />
+        <label for="name">Name</label>
+      </p-floatLabel>
+      <br />
+      <br />
+      <p-floatLabel>
+        <input
+          id="description"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="description"
+        />
+        <label for="description">Description</label>
+      </p-floatLabel>
+      <br />
+      <p-button
+        label="Create"
+        icon="pi pi-plus"
+        iconPos="right"
+        type="submit"
+        [disabled]="disableUserGroceryListFormSubmission"
+      ></p-button>
+    </form>
+  </p-card>
 </div>
 }

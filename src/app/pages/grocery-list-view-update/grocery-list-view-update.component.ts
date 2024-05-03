@@ -1,357 +1,719 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, ViewportScroller } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
   AbstractControl,
   FormArray,
   FormControl,
   FormGroup,
+  FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { NgxSkeletonLoaderModule } from 'ngx-skeleton-loader';
+import { AccordionModule } from 'primeng/accordion';
 import {
-  GroceryListItemCreationUpdationPayload,
+  ConfirmationService,
+  MessageService,
+  PrimeNGConfig,
+} from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DividerModule } from 'primeng/divider';
+import { DropdownModule } from 'primeng/dropdown';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { InputTextModule } from 'primeng/inputtext';
+import { MenubarModule } from 'primeng/menubar';
+import { PasswordModule } from 'primeng/password';
+import { ScrollTopModule } from 'primeng/scrolltop';
+import { ToastModule } from 'primeng/toast';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
+import { ErrorComponent } from '../../components/error/error.component';
+import { ProgressSpinnerLgComponent } from '../../components/progress-spinner-lg/progress-spinner-lg.component';
+import { ProgressSpinnerSmComponent } from '../../components/progress-spinner-sm/progress-spinner-sm.component';
+import { ContentEditableDirective } from '../../directives/content-editable.directive';
+import {
+  GroceryListItemCreationPayload,
   GroceryListService,
+  GroceryListUpdationPayload,
   UserGroceryListItemResponse,
   UserGroceryListResponse,
-  UserGroceryListSummaryExportResponse,
 } from '../../services/grocery-list.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ContentEditableDirective } from '../../directives/content-editable.directive';
-import { map } from 'rxjs';
 
 interface MeasurementUnit {
   id: string;
   value: 'Unit' | 'Kilogram' | 'Gram';
 }
 
-interface UserGroceryListFormItemsFormGroupChangeActions {
-  added: FormGroup[];
-  deleted: FormGroup[];
-  modified: FormGroup[];
-}
-
 @Component({
   selector: 'app-grocery-list-view-update',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ContentEditableDirective],
+  providers: [MessageService, ConfirmationService],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ContentEditableDirective,
+    MenubarModule,
+    InputTextModule,
+    PasswordModule,
+    FloatLabelModule,
+    ButtonModule,
+    CardModule,
+    DividerModule,
+    ToastModule,
+    ConfirmDialogModule,
+    AccordionModule,
+    DropdownModule,
+    InputNumberModule,
+    CommonModule,
+    ToggleButtonModule,
+    NgxSkeletonLoaderModule,
+    ScrollTopModule,
+    ErrorComponent,
+    ProgressSpinnerSmComponent,
+    ProgressSpinnerLgComponent,
+    CenteredProgressSpinnerLgComponent,
+  ],
   templateUrl: './grocery-list-view-update.component.html',
   styleUrl: './grocery-list-view-update.component.css',
 })
 export class GroceryListViewUpdateComponent implements OnInit {
+  disableInteraction = false;
+  error = false;
+
+  userGroceryListBasicFormInitialized = false;
+  disableUserGroceryListBasicFormUpdationPreviousState = true;
+  disableUserGroceryListBasicFormUpdation = true;
+  resetUserGroceryListBasicForm = false;
+
+  userGroceryListBasicFormEdit = false;
+
+  userGroceryListItemsFormArrayInitialized = false;
+
+  id: string | undefined;
+  userGroceryList: UserGroceryListResponse | undefined;
+  userGroceryListItems: UserGroceryListItemResponse[] | undefined;
+
+  userGroceryListItemActiveIndex = 0;
+
+  userGroceryListForm: FormGroup | undefined;
+
   measurementUnits: MeasurementUnit[] = [
     { id: '1', value: 'Unit' },
     { id: '2', value: 'Kilogram' },
     { id: '3', value: 'Gram' },
   ];
 
-  id = '';
-
-  groceryListForm!: FormGroup;
-
-  groceryListFormStatus:
-    | 'NotSubmitted'
-    | 'Submitted'
-    | 'SubmissionError'
-    | 'InProgress' = 'NotSubmitted';
-
-  groceryListFormMessage!: string;
-
-  userGroceryListSummaryExportStatus: 'NotExported' | 'Exported' =
-    'NotExported';
-
   constructor(
     private route: ActivatedRoute,
     private groceryListService: GroceryListService,
-    private router: Router
+    private router: Router,
+    private messageService: MessageService,
+    private primengConfig: PrimeNGConfig,
+    private confirmationService: ConfirmationService,
+    private scroller: ViewportScroller
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.id = this.route.snapshot.url[1].path;
 
-    this.groceryListService.getUserGroceryList(this.id).subscribe({
-      next: (response: UserGroceryListResponse) => {
-        this.groceryListForm = new FormGroup({
-          name: new FormControl(response.name, [Validators.required]),
-          description: new FormControl(response.description),
-          totalPrice: new FormControl(response.total_price),
-          items: new FormArray([]),
-        });
+    this.primengConfig.ripple = true;
 
-        this.groceryListService
-          .getUserGroceryListItems(response.id)
-          .pipe(
-            map((response: UserGroceryListItemResponse[]) => {
-              return response.map((item) => {
-                return new FormGroup({
-                  id: new FormControl(item.id),
-                  name: new FormControl(item.name, [Validators.required]),
-                  description: new FormControl(item.description),
-                  rateMeasurementQuantity: new FormControl(
-                    item.rate_measurement_quantity,
-                    [Validators.required]
-                  ),
-                  rateMeasurementUnit: new FormControl(
-                    this.measurementUnits.find(
-                      (obj) => obj.value === item.rate_measurement_unit
-                    )!.id,
-                    [Validators.required]
-                  ),
-                  rate: new FormControl(item.rate, [Validators.required]),
-                  quantityMeasurementUnit: new FormControl(
-                    this.measurementUnits.find(
-                      (obj) => obj.value === item.quantity_measurement_unit
-                    )!.id,
-                    [Validators.required]
-                  ),
-                  quantity: new FormControl(item.quantity, [
-                    Validators.required,
-                  ]),
-                  price: new FormControl(item.price, [Validators.required]),
-                  update: new FormControl(false),
-                });
-              });
-            })
-          )
-          .subscribe({
-            next: (formGroups: FormGroup[]) => {
-              if (this.groceryListForm) {
-                formGroups.forEach((formGroup) =>
-                  (this.groceryListForm.get('items') as FormArray).push(
-                    formGroup
-                  )
+    if (this.id) {
+      this.groceryListService.getUserGroceryList(this.id).subscribe({
+        next: (response: UserGroceryListResponse) => {
+          this.userGroceryList = response;
+
+          this.userGroceryListForm = new FormGroup({
+            name: new FormControl(response.name, [Validators.required]),
+            description: new FormControl(response.description),
+            totalPrice: new FormControl(response.total_price),
+            items: new FormArray([]),
+          });
+
+          this.userGroceryListForm.valueChanges.subscribe(() => {
+            const nameControl = this.userGroceryListForm!.get('name')!;
+            const descriptionControl =
+              this.userGroceryListForm!.get('description')!;
+
+            const nameChanged =
+              nameControl.value !== this.userGroceryList?.name;
+            const descriptionChanged =
+              descriptionControl.value !== this.userGroceryList?.description;
+
+            const nameIsValid = nameControl.valid;
+            const descriptionIsValid = descriptionControl.valid;
+
+            this.disableUserGroceryListBasicFormUpdation = !(
+              nameIsValid &&
+              descriptionIsValid &&
+              this.userGroceryListBasicFormEdit &&
+              (nameChanged || descriptionChanged)
+            );
+
+            this.disableUserGroceryListBasicFormUpdationPreviousState =
+              this.disableUserGroceryListBasicFormUpdation;
+
+            this.resetUserGroceryListBasicForm =
+              !this.disableUserGroceryListBasicFormUpdation;
+          });
+
+          this.userGroceryListBasicFormInitialized = true;
+
+          this.groceryListService.getUserGroceryListItems(this.id!).subscribe({
+            next: (response: UserGroceryListItemResponse[]) => {
+              this.userGroceryListItems = response;
+
+              response.map((item) => {
+                (this.userGroceryListForm!.get('items') as FormArray).push(
+                  new FormGroup({
+                    name: new FormControl(item.name, [Validators.required]),
+                    description: new FormControl(item.description),
+                    rateMeasurementQuantity: new FormControl(
+                      item.rate_measurement_quantity,
+                      [Validators.required]
+                    ),
+                    rateMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.rate_measurement_unit
+                      ),
+                      [Validators.required]
+                    ),
+                    rate: new FormControl(item.rate, [Validators.required]),
+                    quantityMeasurementUnit: new FormControl(
+                      this.measurementUnits.find(
+                        (obj) => obj.value === item.quantity_measurement_unit
+                      ),
+                      [Validators.required]
+                    ),
+                    quantity: new FormControl(item.quantity, [
+                      Validators.required,
+                    ]),
+                    price: new FormControl(item.price, [Validators.required]),
+                    edit: new FormControl(false),
+                    updatePreviousState: new FormControl(false),
+                    updateCurrentState: new FormControl(false),
+                    resetCurrentState: new FormControl(false),
+                  })
                 );
+              });
+
+              this.userGroceryListItemsFormArrayInitialized = true;
+            },
+            error: (error) => {
+              if (error.status === 0) {
+                this.error = true;
+              } else if (error.status === 404) {
+                this.router.navigate(['/not-found']);
               }
             },
-            error: (err) => {
-              this.groceryListFormStatus = 'SubmissionError';
-              this.groceryListFormMessage =
-                'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
-            },
           });
+        },
+        error: (error) => {
+          if (error.status === 0) {
+            this.error = true;
+          } else if (error.status === 404) {
+            this.router.navigate(['/not-found']);
+          }
+        },
+      });
+    }
+  }
+
+  onUserGroceryListBasicFormEditButtonChange(value: boolean): void {
+    if (!value) {
+      this.disableUserGroceryListBasicFormUpdation = true;
+
+      this.resetUserGroceryListBasicForm = false;
+    } else {
+      if (!this.disableUserGroceryListBasicFormUpdationPreviousState) {
+        this.disableUserGroceryListBasicFormUpdation = false;
+
+        this.resetUserGroceryListBasicForm = true;
+      }
+    }
+  }
+
+  updateUserGroceryListBasicDetails(): void {
+    this.disableInteraction = true;
+
+    const name = this.userGroceryListForm!.controls['name'].value;
+    const description = this.userGroceryListForm!.controls['description'].value;
+
+    let userGroceryListUpdationPayload: GroceryListUpdationPayload = {};
+
+    if (name !== this.userGroceryList!.name) {
+      userGroceryListUpdationPayload.name = name;
+    }
+
+    if (description !== this.userGroceryList!.description) {
+      userGroceryListUpdationPayload.description = description;
+    }
+
+    this.groceryListService
+      .updatePatchUserGroceryList(this.id!, userGroceryListUpdationPayload)
+      .subscribe({
+        next: (response: UserGroceryListResponse) => {
+          this.userGroceryList = response;
+
+          this.disableInteraction = false;
+
+          this.disableUserGroceryListBasicFormUpdation = true;
+        },
+        error: (error) => {
+          this.disableInteraction = false;
+
+          this.messageService.add({
+            key: 'tr',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unable to update grocery list',
+          });
+
+          this.disableUserGroceryListBasicFormUpdation = true;
+        },
+      });
+  }
+
+  resetUserGroceryListFormBasicDetails(): void {
+    this.userGroceryListForm!.patchValue({
+      name: this.userGroceryList!.name,
+      description: this.userGroceryList!.description,
+    });
+
+    this.resetUserGroceryListBasicForm = false;
+  }
+
+  deleteUserGroceryList() {
+    this.confirmationService.confirm({
+      header: `Delete ${this.userGroceryListForm!.controls['name'].value}`,
+      message: 'Are you sure that you want to perform this action?',
+      defaultFocus: 'none',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: '',
+      accept: () => {
+        this.disableInteraction = true;
+
+        this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
+          next: () => {
+            this.disableInteraction = false;
+
+            this.router.navigate(['/']);
+          },
+          error: (error) => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to delete grocery list',
+            });
+          },
+        });
       },
-      error: (err) => {
-        this.groceryListFormStatus = 'SubmissionError';
-        this.groceryListFormMessage =
-          'Apologies, there seems to be a technical issue. Our team is working on it. Please try again later. Thank you for your understanding.';
+      reject: () => {},
+    });
+  }
+
+  exportUserGroceryListSummary() {
+    this.disableInteraction = true;
+
+    this.groceryListService.exportUserGroceryListSummary(this.id!).subscribe({
+      next: (response: Blob) => {
+        const downloadLink = document.createElement('a');
+
+        const fileName = `${
+          this.userGroceryListForm!.controls['name'].value
+        } ${Date.now()}.pdf`;
+
+        downloadLink.href = window.URL.createObjectURL(response);
+        downloadLink.download = fileName;
+
+        downloadLink.dispatchEvent(new MouseEvent('click'));
+
+        this.disableInteraction = false;
+      },
+      error: (error) => {
+        this.disableInteraction = false;
+
+        this.messageService.add({
+          key: 'tr',
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Unable to export grocery list',
+        });
       },
     });
   }
 
   getItemsArrayControls(): AbstractControl<any, any>[] {
-    return (this.groceryListForm.get('items') as FormArray).controls;
-  }
-
-  addUserGroceryListItem(): void {
-    this.groceryListService
-      .createUserGroceryListItem(this.id, {
-        name: '',
-        description: '',
-        rate_measurement_quantity: 0,
-        rate_measurement_unit: 'Unit',
-        rate: 0,
-        quantity_measurement_unit: 'Unit',
-        quantity: 0,
-        price: 0,
-        grocery_list: this.id as unknown as number,
-      })
-      .subscribe({
-        next: (response: UserGroceryListItemResponse) => {
-          (this.groceryListForm.get('items') as FormArray).push(
-            new FormGroup({
-              id: new FormControl(response.id),
-              name: new FormControl('', [Validators.required]),
-              description: new FormControl(''),
-              rateMeasurementQuantity: new FormControl(0, [
-                Validators.required,
-              ]),
-              rateMeasurementUnit: new FormControl('1', [Validators.required]),
-              rate: new FormControl(0, [Validators.required]),
-              quantityMeasurementUnit: new FormControl('1', [
-                Validators.required,
-              ]),
-              quantity: new FormControl(0, [Validators.required]),
-              price: new FormControl(0, [Validators.required]),
-              update: new FormControl(false),
-            })
-          );
-        },
-      });
-  }
-
-  updateUserGroceryListItem(index: number): void {
-    // this.groceryListFormStatus = 'InProgress';
-
-    const userGroceryListItemsFormArray = this.groceryListForm.get(
-      'items'
-    ) as FormArray;
-
-    const userGroceryListItemPayload = (
-      userGroceryListItemsFormArray.controls[index] as FormGroup
-    ).value;
-
-    this.groceryListService
-      .updatePutUserGroceryListItem(this.id, userGroceryListItemPayload.id, {
-        name: userGroceryListItemPayload.name,
-        description: userGroceryListItemPayload.description,
-        rate_measurement_quantity:
-          userGroceryListItemPayload.rateMeasurementQuantity,
-        rate_measurement_unit: this.measurementUnits.find(
-          (obj) => obj.id === userGroceryListItemPayload.rateMeasurementUnit
-        )!.value,
-        rate: userGroceryListItemPayload.rate,
-        quantity_measurement_unit: this.measurementUnits.find(
-          (obj) => obj.id === userGroceryListItemPayload.quantityMeasurementUnit
-        )!.value,
-        quantity: userGroceryListItemPayload.quantity,
-        price: userGroceryListItemPayload.price,
-        grocery_list: this.id as unknown as number,
-      })
-      .subscribe({
-        next: () => {
-          const price = (
-            userGroceryListItemsFormArray.controls[index] as FormGroup
-          ).controls['price'].value;
-
-          this.groceryListService
-            .updatePatchUserGroceryList(this.id, {
-              total_price: this.groceryListForm.controls['totalPrice'].value,
-            })
-            .subscribe({});
-
-          // this.groceryListFormStatus = 'Submitted';
-        },
-        error: () => {
-          // this.groceryListFormStatus = 'SubmissionError';
-        },
-      });
+    return (this.userGroceryListForm!.get('items') as FormArray).controls;
   }
 
   deleteUserGroceryListItem(index: number): void {
-    const userGroceryListItemsFormArray = this.groceryListForm.get(
-      'items'
-    ) as FormArray;
+    this.confirmationService.confirm({
+      header: `Delete ${this.userGroceryListItems![index].name}`,
+      message: 'Are you sure that you want to perform this action?',
+      defaultFocus: 'none',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: '',
+      accept: () => {
+        this.disableInteraction = true;
 
-    const id = (userGroceryListItemsFormArray.controls[index] as FormGroup)
-      .controls['id'].value;
+        const userGroceryListItemsFormArray = this.userGroceryListForm!.get(
+          'items'
+        ) as FormArray;
 
-    const oldPrice = (
-      userGroceryListItemsFormArray.controls[index] as FormGroup
-    ).controls['price'].value;
+        const id = this.userGroceryListItems![index].id;
 
-    this.groceryListService.deleteUserGroceryListItem(this.id, id).subscribe({
-      next: () => {
+        const oldPrice = (
+          userGroceryListItemsFormArray.controls[index] as FormGroup
+        ).controls['price'].value;
+
         this.groceryListService
-          .updatePatchUserGroceryList(this.id, {
-            total_price: this.groceryListForm.controls['totalPrice'].value,
-          })
+          .deleteUserGroceryListItem(this.id!, id as unknown as string)
           .subscribe({
             next: () => {
-              (this.groceryListForm.get('items') as FormArray).removeAt(index);
+              this.userGroceryListItems!.splice(index, 1);
 
-              this.groceryListForm.controls['totalPrice'].setValue(
-                this.groceryListForm.controls['totalPrice'].value - oldPrice
+              (this.userGroceryListForm!.get('items') as FormArray).removeAt(
+                index
               );
+
+              this.userGroceryListForm!.controls['totalPrice'].setValue(
+                this.userGroceryListForm!.controls['totalPrice'].value -
+                  oldPrice
+              );
+
+              this.disableInteraction = false;
+            },
+            error: (error) => {
+              this.disableInteraction = false;
+
+              this.messageService.add({
+                key: 'tr',
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Unable to delete item',
+              });
             },
           });
       },
+      reject: () => {},
     });
   }
 
-  updateItemPrice(index: number): void {
-    console.log(
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['update'].value
-    );
+  addUserGroceryListItem(): void {
+    this.disableInteraction = true;
 
-    if (
-      !(
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['update'].value
-    ) {
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['update'].setValue(true);
+    const groceryListItemObject: GroceryListItemCreationPayload = {
+      name: '',
+      description: '',
+      rate_measurement_quantity: 0,
+      rate_measurement_unit: 'Unit',
+      rate: 0,
+      quantity_measurement_unit: 'Unit',
+      quantity: 0,
+      price: 0,
+    };
+
+    this.groceryListService
+      .createUserGroceryListItem(this.id!, groceryListItemObject)
+      .subscribe({
+        next: (response: UserGroceryListItemResponse) => {
+          this.userGroceryListItems!.push(response);
+
+          (this.userGroceryListForm!.get('items') as FormArray).push(
+            new FormGroup({
+              name: new FormControl(response.name, [Validators.required]),
+              description: new FormControl(response.description),
+              rateMeasurementQuantity: new FormControl(
+                response.rate_measurement_quantity,
+                [Validators.required]
+              ),
+              rateMeasurementUnit: new FormControl(
+                this.measurementUnits.find(
+                  (obj) => obj.value === response.rate_measurement_unit
+                ),
+                [Validators.required]
+              ),
+              rate: new FormControl(response.rate, [Validators.required]),
+              quantityMeasurementUnit: new FormControl(
+                this.measurementUnits.find(
+                  (obj) => obj.value === response.quantity_measurement_unit
+                ),
+                [Validators.required]
+              ),
+              quantity: new FormControl(response.quantity, [
+                Validators.required,
+              ]),
+              price: new FormControl(response.price, [Validators.required]),
+              edit: new FormControl(false),
+              updatePreviousState: new FormControl(false),
+              updateCurrentState: new FormControl(false),
+              resetCurrentState: new FormControl(false),
+            })
+          );
+
+          this.disableInteraction = false;
+
+          // this.userGroceryListItemActiveIndex =
+          //   this.userGroceryListItems!.length - 1;
+
+          // const accordionElement = document.querySelector(
+          //   `.accordion-tab[data-index="${this.userGroceryListItemActiveIndex}"]`
+          // );
+
+          // if (accordionElement) {
+          //   accordionElement.scrollIntoView({
+          //     behavior: 'smooth',
+          //     block: 'start',
+          //   });
+          // }
+        },
+        error: (error) => {
+          this.disableInteraction = false;
+
+          this.messageService.add({
+            key: 'tr',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unable to add item',
+          });
+        },
+      });
+  }
+
+  onUserGroceryListItemPropChange(index: number): void {
+    if (this.userGroceryListItems) {
+      const nameControl = this.getItemsArrayControls()[index].get('name')!;
+      const descriptionControl =
+        this.getItemsArrayControls()[index].get('description')!;
+      const rateMeasurementQuantityControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementQuantity')!;
+      const rateMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('rateMeasurementUnit')!;
+      const rateControl = this.getItemsArrayControls()[index].get('rate')!;
+      const quantityMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('quantityMeasurementUnit')!;
+      const quantityControl =
+        this.getItemsArrayControls()[index].get('quantity')!;
+
+      const nameChanged =
+        nameControl.value !== this.userGroceryListItems[index].name;
+      const descriptionChanged =
+        descriptionControl.value !==
+        this.userGroceryListItems[index].description;
+      const rateMeasurementQuantityChanged =
+        rateMeasurementQuantityControl.value !==
+        this.userGroceryListItems[index].rate_measurement_quantity;
+      const rateMeasurementUnitChanged =
+        rateMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].rate_measurement_unit;
+      const rateChanged =
+        rateControl.value !== this.userGroceryListItems[index].rate;
+      const quantityMeasurementUnitChanged =
+        quantityMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].quantity_measurement_unit;
+      const quantityChanged =
+        quantityControl.value !== this.userGroceryListItems[index].quantity;
+
+      const nameValid = nameControl.valid;
+      const descriptionValid = descriptionControl.valid;
+      const rateMeasurementQuantityValid = rateMeasurementQuantityControl.valid;
+      const rateMeasurementUnitValid = rateMeasurementUnitControl.valid;
+      const rateValid = rateControl.valid;
+      const quantityMeasurementUnitValid = quantityMeasurementUnitControl.valid;
+      const quantityValid = quantityControl.valid;
+
+      const updateState =
+        nameValid &&
+        descriptionValid &&
+        rateMeasurementQuantityValid &&
+        rateMeasurementUnitValid &&
+        rateValid &&
+        quantityMeasurementUnitValid &&
+        quantityValid &&
+        this.getItemsArrayControls()[index].get('edit')!.value &&
+        (nameChanged ||
+          descriptionChanged ||
+          rateMeasurementQuantityChanged ||
+          rateMeasurementUnitChanged ||
+          rateChanged ||
+          quantityMeasurementUnitChanged ||
+          quantityChanged);
+
+      const willPriceChange =
+        rateMeasurementQuantityValid &&
+        rateMeasurementUnitValid &&
+        rateValid &&
+        quantityMeasurementUnitValid &&
+        quantityValid &&
+        (rateMeasurementQuantityChanged ||
+          rateMeasurementUnitChanged ||
+          rateChanged ||
+          quantityMeasurementUnitChanged ||
+          quantityChanged);
+
+      const updatedPrice = willPriceChange
+        ? this.groceryListService.getItemPrice(
+            rateMeasurementQuantityControl.value,
+            rateMeasurementUnitControl.value.value,
+            rateControl.value,
+            quantityMeasurementUnitControl.value.value,
+            quantityControl.value
+          )
+        : null;
+
+      this.getItemsArrayControls()[index].patchValue({
+        updatePrevState: updateState,
+        updateCurrentState: updateState,
+        resetCurrentState: updateState,
+        ...(updatedPrice ? { price: updatedPrice } : {}),
+      });
+
+      if (updatedPrice) {
+        this.userGroceryListForm?.patchValue({
+          totalPrice:
+            this.userGroceryListForm?.controls['totalPrice'].value +
+            updatedPrice -
+            this.userGroceryListItems[index].price,
+        });
+      }
     }
+  }
 
-    const oldTotalPrice = this.groceryListForm.controls['totalPrice'].value;
+  resetUserGroceryLisItem(index: number) {
+    if (this.userGroceryListForm && this.userGroceryListItems) {
+      this.userGroceryListForm.patchValue({
+        totalPrice:
+          this.userGroceryListForm.get('totalPrice')!.value +
+          this.userGroceryListItems[index].price -
+          this.getItemsArrayControls()[index].get('price')!.value,
+      });
 
-    const oldPrice = (
-      (this.groceryListForm.controls['items'] as FormArray).controls[
+      this.getItemsArrayControls()[index].patchValue({
+        name: this.userGroceryListItems[index].name,
+        description: this.userGroceryListItems[index].description,
+        rateMeasurementQuantity:
+          this.userGroceryListItems[index].rate_measurement_quantity,
+        rateMeasurementUnit: this.measurementUnits.find(
+          (obj) =>
+            obj.value ===
+            this.userGroceryListItems![index].rate_measurement_unit
+        ),
+        rate: this.userGroceryListItems[index].rate,
+        quantityMeasurementUnit: this.measurementUnits.find(
+          (obj) =>
+            obj.value ===
+            this.userGroceryListItems![index].quantity_measurement_unit
+        ),
+        quantity: this.userGroceryListItems[index].quantity,
+        price: this.userGroceryListItems[index].price,
+        updatePrevState: false,
+        updateCurrentState: false,
+        resetCurrentState: false,
+      });
+    }
+  }
+
+  updateUserGroceryListItem(index: number): void {
+    if (this.userGroceryListItems) {
+      this.disableInteraction = true;
+
+      const id = this.userGroceryListItems[index].id;
+
+      const nameControl = this.getItemsArrayControls()[index].get('name')!;
+      const descriptionControl =
+        this.getItemsArrayControls()[index].get('description')!;
+      const rateMeasurementQuantityControl = this.getItemsArrayControls()[
         index
-      ] as FormGroup
-    ).controls['price'].value;
-
-    const newPrice = this.groceryListService.getItemPrice(
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['rateMeasurementQuantity'].value,
-      this.measurementUnits.find(
-        (obj) =>
-          obj.id ===
-          (
-            (this.groceryListForm.controls['items'] as FormArray).controls[
-              index
-            ] as FormGroup
-          ).controls['rateMeasurementUnit'].value
-      )!.value,
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['rate'].value,
-      this.measurementUnits.find(
-        (obj) =>
-          obj.id ===
-          (
-            (this.groceryListForm.controls['items'] as FormArray).controls[
-              index
-            ] as FormGroup
-          ).controls['quantityMeasurementUnit'].value
-      )!.value,
-      (
-        (this.groceryListForm.controls['items'] as FormArray).controls[
-          index
-        ] as FormGroup
-      ).controls['quantity'].value
-    );
-
-    (
-      (this.groceryListForm.controls['items'] as FormArray).controls[
+      ].get('rateMeasurementQuantity')!;
+      const rateMeasurementUnitControl = this.getItemsArrayControls()[
         index
-      ] as FormGroup
-    ).controls['price'].setValue(newPrice);
+      ].get('rateMeasurementUnit')!;
+      const rateControl = this.getItemsArrayControls()[index].get('rate')!;
+      const quantityMeasurementUnitControl = this.getItemsArrayControls()[
+        index
+      ].get('quantityMeasurementUnit')!;
+      const quantityControl =
+        this.getItemsArrayControls()[index].get('quantity')!;
 
-    this.groceryListForm.controls['totalPrice'].setValue(
-      oldTotalPrice + newPrice - oldPrice
-    );
-  }
+      const nameChanged =
+        nameControl.value !== this.userGroceryListItems[index].name;
+      const descriptionChanged =
+        descriptionControl.value !==
+        this.userGroceryListItems[index].description;
+      const rateMeasurementQuantityChanged =
+        rateMeasurementQuantityControl.value !==
+        this.userGroceryListItems[index].rate_measurement_quantity;
+      const rateMeasurementUnitChanged =
+        rateMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].rate_measurement_unit;
+      const rateChanged =
+        rateControl.value !== this.userGroceryListItems[index].rate;
+      const quantityMeasurementUnitChanged =
+        quantityMeasurementUnitControl.value.value !==
+        this.userGroceryListItems[index].quantity_measurement_unit;
+      const quantityChanged =
+        quantityControl.value !== this.userGroceryListItems[index].quantity;
 
-  updateUserGroceryList() {
-    console.log(1);
-  }
+      const userGroceryListItemPayload = {
+        ...(nameChanged ? { name: nameControl.value } : {}),
+        ...(descriptionChanged
+          ? { description: descriptionControl.value }
+          : {}),
+        ...(rateMeasurementQuantityChanged
+          ? {
+              rate_measurement_quantity: rateMeasurementQuantityControl.value,
+            }
+          : {}),
+        ...(rateMeasurementUnitChanged
+          ? {
+              rate_measurement_unit: rateMeasurementUnitControl.value.value,
+            }
+          : {}),
+        ...(rateChanged ? { rate: rateControl.value } : {}),
+        ...(quantityMeasurementUnitChanged
+          ? {
+              quantity_measurement_unit:
+                quantityMeasurementUnitControl.value.value,
+            }
+          : {}),
+        ...(quantityChanged ? { quantity: quantityControl.value } : {}),
+      };
 
-  deleteUserGroceryList() {
-    this.groceryListService.deleteUserGroceryList(this.id!).subscribe({
-      next: () => {
-        this.router.navigate(['/']);
-      },
-    });
-  }
+      this.groceryListService
+        .updatePatchUserGroceryListItem(
+          this.id!,
+          id as unknown as string,
+          userGroceryListItemPayload
+        )
+        .subscribe({
+          next: (response: UserGroceryListItemResponse) => {
+            this.userGroceryListItems![index] = response;
 
-  exportUserGroceryListSummary() {
-    this.groceryListService.exportUserGroceryListSummary(this.id!).subscribe({
-      next: (response: UserGroceryListSummaryExportResponse) => {
-        window.open(response.download_url, '_blank');
-      },
-    });
+            this.disableInteraction = false;
+          },
+          error: (error) => {
+            this.disableInteraction = false;
+
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to update item',
+            });
+          },
+        });
+    }
   }
 }

@@ -1,240 +1,447 @@
-<div class="row navbar price-div sticky-top py-3">
-  <div class="col">
-    <label class="form-label">Total</label>
-  </div>
-  <div class="col text-end">
-    <label class="form-label">{{
-      groceryListForm.controls["totalPrice"].value
-    }}</label>
-  </div>
-</div>
+<p-toast></p-toast>
+<p-toast position="top-right" key="tr"></p-toast>
+<p-confirmDialog></p-confirmDialog>
+<p-scrollTop></p-scrollTop>
 
-<div class="row">
-  <div class="col"></div>
-  <div class="btn-group col text-end" role="group">
-    <button
-      type="button"
-      class="btn btn-primary"
-      (click)="exportUserGroceryListSummary()"
-    >
-      Export
-    </button>
-    <button
-      type="button"
-      class="btn btn-danger"
-      (click)="deleteUserGroceryList()"
-    >
-      Delete
-    </button>
-  </div>
-</div>
+@if (disableInteraction) {
+<app-centered-progress-spinner-lg />
+} @else if (error) {
+<app-error />
+} @else {
+<p-menubar
+  class="sticky-top"
+  [style]="{
+    top: '60px',
+    'background-color': 'rgba(255, 255, 255, 0.9)',
+    'backdrop-filter': 'blur(5px)',
+    border: 'none',
+    'box-shadow': 'none'
+  }"
+>
+  <ng-template pTemplate="start">
+    <h2>Total price</h2>
+  </ng-template>
+  <ng-template pTemplate="end">
+    @if (!userGroceryListBasicFormInitialized) {
+    <app-progress-spinner-sm />
+    } @else if (userGroceryListForm) {
+    <h2>{{ userGroceryListForm.controls["totalPrice"].value }}</h2>
+    }
+  </ng-template>
+</p-menubar>
 
-<br />
-<br />
-
-@if (groceryListFormStatus === 'NotSubmitted' || groceryListFormStatus ===
-'SubmissionError') { @if (groceryListFormStatus === 'SubmissionError') {
-<div class="alert alert-danger" role="alert">
-  <span class="alert-icon"><span class="visually-hidden">Error</span></span>
-  <p>{{ groceryListFormMessage }}></p>
-</div>
-
-} @if (groceryListForm) {
-<form [formGroup]="groceryListForm" (ngSubmit)="updateUserGroceryList()">
-  <div class="mb-3">
-    <label class="form-label">Name</label>
-    <input type="text" class="form-control" formControlName="name" required />
-  </div>
-
-  <div class="mb-3">
-    <label class="form-label">Description</label>
-    <div
-      class="form-control"
-      formControlName="description"
-      required
-      appContentEditable
-      contenteditable="true"
-      aria-multiline="true"
-    ></div>
-  </div>
-
-  <h3>Items</h3>
-
-  <div formArrayName="items">
-    @for (item of getItemsArrayControls(); track item; let index = $index) {
-    <div class="card">
-      <div class="card-body">
-        <div formGroupName="{{ index }}">
-          <div class="row">
-            <div class="col"></div>
-            <div class="btn-group col text-end" role="group">
-              <button
-                type="button"
-                class="btn btn-success"
-                (click)="updateUserGroceryListItem(index)"
-                [disabled]="!item.get('update')!.value"
-              >
-                Update
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                (click)="deleteUserGroceryListItem(index)"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-
-          <br />
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Name</label>
-            <input
-              type="text"
-              class="form-control input-group-sm"
-              formControlName="name"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Description</label>
-            <div
-              type="text"
-              class="form-control"
-              formControlName="description"
-              required
-              appContentEditable
-              contenteditable="true"
-              aria-multiline="true"
-            ></div>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate Measurement quantity</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="rateMeasurementQuantity"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate Measurement unit</label>
-            <select
-              class="form-select"
-              formControlName="rateMeasurementUnit"
-              (change)="updateItemPrice(index)"
-              required
-            >
-              @for (measurementUnit of measurementUnits; track $index) {
-              <option [value]="measurementUnit.id">
-                {{ measurementUnit.value }}
-              </option>
-              }
-            </select>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Rate</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="rate"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Quantity Measurement unit </label>
-            <select
-              class="form-select"
-              formControlName="quantityMeasurementUnit"
-              (change)="updateItemPrice(index)"
-              required
-            >
-              @for (measurementUnit of measurementUnits; track $index) {
-              <option [value]="measurementUnit.id">
-                {{ measurementUnit.value }}
-              </option>
-              }
-            </select>
-          </div>
-
-          <div class="input-group-sm mb-3">
-            <label class="form-label">Quantity</label>
-            <input
-              type="number"
-              class="form-control"
-              formControlName="quantity"
-              (keyup)="updateItemPrice(index)"
-              required
-            />
-          </div>
-
-          <div class="row">
-            <div class="col">
-              <label class="form-label">Total</label>
-            </div>
-            <div class="col text-end">
-              <label class="form-label">{{ item.get("price")?.value }}</label>
-            </div>
-          </div>
+<div class="container content">
+  <p-card>
+    @if (!userGroceryListBasicFormInitialized) {
+    <br />
+    <ngx-skeleton-loader
+      [theme]="{ 'height.x': 100, 'width.%': 50 }"
+    ></ngx-skeleton-loader>
+    } @else if (userGroceryListForm) {
+    <h2>{{ userGroceryListForm.controls["name"].value }}</h2>
+    }
+    <div class="grid">
+      <div class="col">
+        <div class="text-right">
+          @if (!userGroceryListBasicFormInitialized) {
+          <ngx-skeleton-loader
+            class="mr-2"
+            [theme]="{ 'width.%': 8 }"
+          ></ngx-skeleton-loader>
+          <ngx-skeleton-loader [theme]="{ 'width.%': 8 }"></ngx-skeleton-loader>
+          } @else if (userGroceryListForm) {
+          <p-button
+            icon="pi pi-user-plus"
+            severity="info"
+            class="mr-2"
+          ></p-button>
+          <p-button
+            icon="pi pi-file-export"
+            severity="secondary"
+            class="mr-2"
+            (onClick)="exportUserGroceryListSummary()"
+          ></p-button>
+          <p-toggleButton
+            [(ngModel)]="userGroceryListBasicFormEdit"
+            (ngModelChange)="onUserGroceryListBasicFormEditButtonChange($event)"
+            class="mr-2"
+            onIcon="pi pi-eye"
+            offIcon="pi pi-pencil"
+          ></p-toggleButton>
+          <p-button
+            icon="pi pi-times"
+            severity="danger"
+            (onClick)="deleteUserGroceryList()"
+          ></p-button>
+          }
         </div>
       </div>
     </div>
 
     <br />
-    }
-  </div>
 
-  <div class="text-center">
-    <button
-      type="button"
-      class="btn btn-success"
-      (click)="addUserGroceryListItem()"
-    >
-      Add item
-    </button>
-  </div>
-
-  <br />
-
-  <div class="mb-3">
-    <label class="form-label">Generate with AI</label>
-    <div
-      contenteditable="true"
-      aria-multiline="true"
-      class="form-control"
-    ></div>
-  </div>
-
-  <div class="text-center">
-    <button
-      type="button"
-      class="btn btn-success"
-      (click)="addUserGroceryListItem()"
-    >
-      Generate
-    </button>
-  </div>
-
-  <br />
-
-  <div class="text-end">
-    <button type="submit" class="btn btn-primary">Update</button>
-  </div>
-</form>
-} } @else if (groceryListFormStatus === 'InProgress') {
-<div class="row align-items-center text-center" style="min-height: 70vh">
-  <div class="col-12">
-    <div class="spinner-border spinner-border-lg text-primary" role="status">
-      <span class="visually-hidden">Loading...</span>
+    @if (!userGroceryListBasicFormInitialized) {
+    <ngx-skeleton-loader></ngx-skeleton-loader>
+    <ngx-skeleton-loader></ngx-skeleton-loader>
+    <div class="grid">
+      <div class="col">
+        <div class="text-right">
+          <ngx-skeleton-loader
+            class="mr-2"
+            [theme]="{ 'width.%': 15 }"
+          ></ngx-skeleton-loader>
+          <ngx-skeleton-loader
+            [theme]="{ 'width.%': 15 }"
+          ></ngx-skeleton-loader>
+        </div>
+      </div>
     </div>
-  </div>
+    } @else if (userGroceryListForm) {
+    <form [formGroup]="userGroceryListForm">
+      <p-floatLabel>
+        <input
+          id="name"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="name"
+          [readOnly]="!userGroceryListBasicFormEdit"
+        />
+        <label for="name">Name</label>
+      </p-floatLabel>
+      <br />
+      <br />
+      <p-floatLabel>
+        <input
+          id="description"
+          type="text"
+          pInputText
+          class="p-inputtext-sm w-full"
+          formControlName="description"
+          [readOnly]="!userGroceryListBasicFormEdit"
+        />
+        <label for="description">Description</label>
+      </p-floatLabel>
+      <br />
+      <div class="grid">
+        <div class="col">
+          <div class="text-right">
+            <p-button
+              label="Update"
+              class="mr-2"
+              icon="pi pi-refresh"
+              iconPos="right"
+              type="button"
+              severity="success"
+              [disabled]="disableUserGroceryListBasicFormUpdation"
+              (onClick)="updateUserGroceryListBasicDetails()"
+            ></p-button>
+            <p-button
+              label="Reset"
+              icon="pi pi-undo"
+              iconPos="right"
+              type="button"
+              severity="secondary"
+              [disabled]="!resetUserGroceryListBasicForm"
+              (onClick)="resetUserGroceryListFormBasicDetails()"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+
+      <h4>Items</h4>
+
+      @if (!userGroceryListItemsFormArrayInitialized) {
+      <p-accordion [activeIndex]="0">
+        <p-accordionTab>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <div class="grid">
+            <div class="col">
+              <h4>Total price</h4>
+            </div>
+            <div class="col">
+              <div class="text-right">
+                <app-progress-spinner-sm />
+              </div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+      <p-accordion [activeIndex]="0">
+        <p-accordionTab>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <ngx-skeleton-loader></ngx-skeleton-loader>
+          <div class="grid">
+            <div class="col">
+              <h4>Total price</h4>
+            </div>
+            <div class="col">
+              <div class="text-right">
+                <app-progress-spinner-sm />
+              </div>
+            </div>
+          </div>
+          <div class="grid">
+            <div class="col">
+              <div class="text-right">
+                <ngx-skeleton-loader
+                  class="mr-2"
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+                <ngx-skeleton-loader
+                  [theme]="{ 'width.%': 15 }"
+                ></ngx-skeleton-loader>
+              </div>
+            </div>
+          </div>
+        </p-accordionTab>
+      </p-accordion>
+      } @else {
+      <div formArrayName="items">
+        <p-accordion [activeIndex]="userGroceryListItemActiveIndex">
+          @for (control of getItemsArrayControls(); track control; let index =
+          $index) {
+          <div formGroupName="{{ index }}">
+            <p-accordionTab class="accordion-tab" header="{{ control.get('name')?.value }}" [attr.data-index]="index">
+              <div class="grid">
+                <div class="col">
+                  <div class="text-right">
+                    <p-toggleButton
+                      formControlName="edit"
+                      class="mr-2"
+                      onIcon="pi pi-eye"
+                      offIcon="pi pi-pencil"
+                    ></p-toggleButton>
+                    <p-button
+                      icon="pi pi-times"
+                      severity="danger"
+                      (onFocus)="deleteUserGroceryListItem(index)"
+                    ></p-button>
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                <p-floatLabel>
+                  <input
+                    id="name"
+                    type="text"
+                    pInputText
+                    class="p-inputtext-sm w-full"
+                    formControlName="name"
+                    [readOnly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
+                  />
+                  <label for="name">Name</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <input
+                    id="description"
+                    type="text"
+                    pInputText
+                    class="p-inputtext-sm w-full"
+                    formControlName="description"
+                    [readOnly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
+                  />
+                  <label for="description">Description</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="rate_measurement_quantity"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="rateMeasurementQuantity"
+                    [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
+                  />
+                  <label for="rate_measurement_quantity"
+                    >Rate Measurement Quantity</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-dropdown
+                    id="rate_measurement_unit"
+                    formControlName="rateMeasurementUnit"
+                    [options]="measurementUnits"
+                    optionLabel="value"
+                    placeholder="Rate Measurement Unit"
+                    [readonly]="!control.get('edit')?.value"
+                    (change)="onUserGroceryListItemPropChange(index)"
+                  ></p-dropdown>
+                  <label for="rate_measurement_unit"
+                    >Rate Measurement Unit</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="rate"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="rate"
+                    [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
+                  />
+                  <label for="rate">Rate</label>
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-dropdown
+                    id="quantity_measurement_unit"
+                    formControlName="quantityMeasurementUnit"
+                    [options]="measurementUnits"
+                    [editable]="true"
+                    optionLabel="value"
+                    placeholder="Quantity Measurement Unit"
+                    [readonly]="!control.get('edit')?.value"
+                    (change)="onUserGroceryListItemPropChange(index)"
+                  ></p-dropdown>
+                  <label for="quantity_measurement_unit"
+                    >Quantity Measurement Unit</label
+                  >
+                </p-floatLabel>
+                <br />
+                <br />
+                <p-floatLabel>
+                  <p-inputNumber
+                    inputId="quantity"
+                    mode="decimal"
+                    minFractionDigits="1"
+                    maxFractionDigits="2"
+                    class="p-inputtext-sm w-full"
+                    styleClass="w-full"
+                    formControlName="quantity"
+                    [readonly]="!control.get('edit')?.value"
+                    (keyup)="onUserGroceryListItemPropChange(index)"
+                  />
+                  <label for="quantity">Quantity</label>
+                </p-floatLabel>
+              </p>
+              <div class="grid">
+                <div class="col">
+                  <h4>Total price</h4>
+                </div>
+                <div class="col">
+                  <div class="text-right">
+                    <h4>{{ control.get("price")?.value }}</h4>
+                  </div>
+                </div>
+              </div>
+              <div class="grid">
+                <div class="col">
+                  <div class="text-right">
+                    <p-button
+                      label="Update"
+                      class="mr-2"
+                      icon="pi pi-refresh"
+                      iconPos="right"
+                      type="button"
+                      severity="success"
+                      [disabled]="!control.get('updateCurrentState')?.value"
+                      (onClick)="updateUserGroceryListItem(index)"
+                    ></p-button>
+                    <p-button
+                      label="Reset"
+                      icon="pi pi-undo"
+                      iconPos="right"
+                      type="button"
+                      severity="secondary"
+                      [disabled]="!control.get('resetCurrentState')?.value"
+                      (onClick)="resetUserGroceryLisItem(index)"
+                    ></p-button>
+                  </div>
+                </div>
+              </div>
+            </p-accordionTab>
+          </div>
+          }
+        </p-accordion>
+      </div>
+      @if (userGroceryListItemsFormArrayInitialized) {
+      <br />
+      <div class="grid">
+        <div class="col">
+          <div class="text-right">
+            <p-button
+              label="Add"
+              icon="pi pi-plus"
+              iconPos="right"
+              type="button"
+              (onClick)="addUserGroceryListItem()"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+      } }
+    </form>
+    }
+  </p-card>
 </div>
 }

@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import {
   FormControl,
@@ -5,85 +6,103 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { LoginResponse, LoginService } from '../../services/login.service';
 import { Router } from '@angular/router';
-import { CookieService } from 'ngx-cookie-service';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { ToastModule } from 'primeng/toast';
+import { CenteredProgressSpinnerLgComponent } from '../../components/centered-progress-spinner-lg/centered-progress-spinner-lg.component';
+import { LoginResponse, LoginService } from '../../services/login.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  providers: [MessageService],
+  imports: [
+    ReactiveFormsModule,
+    InputTextModule,
+    PasswordModule,
+    FloatLabelModule,
+    ButtonModule,
+    CardModule,
+    DividerModule,
+    ToastModule,
+    CommonModule,
+    CenteredProgressSpinnerLgComponent,
+  ],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  loginFormStatus:
-    | 'NotSubmitted'
-    | 'Submitted'
-    | 'SubmissionError'
-    | 'InProgress' = 'NotSubmitted';
-  redirectionTimeout = 5000;
-  redirectionTimeoutDisplay = 5;
+  disableLoginFormSubmission = true;
+  disableInteraction = false;
 
   constructor(
     private loginService: LoginService,
     private router: Router,
-    private cookieService: CookieService
+    private messageService: MessageService,
+    private primengConfig: PrimeNGConfig,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
+
     this.loginForm = new FormGroup({
       userName: new FormControl('', [Validators.required]),
       password: new FormControl('', [Validators.required]),
     });
+
+    this.loginForm.statusChanges.subscribe((status) => {
+      if (status === 'VALID') {
+        this.disableLoginFormSubmission = false;
+      } else {
+        this.disableLoginFormSubmission = true;
+      }
+    });
   }
 
   onSubmit(): void {
-    if (this.loginForm.valid) {
-      this.loginFormStatus = 'InProgress';
-
-      this.loginService
-        .login(this.loginForm.value.userName, this.loginForm.value.password)
-        .subscribe({
-          next: (response: LoginResponse) => {
-            this.loginFormStatus = 'Submitted';
-
-            console.log(response.auth_token)
-
-            this.cookieService.set(
-              'token',
-              response.auth_token,
-              1,
-              '/',
-              `${import.meta.env['NG_APP_DOMAIN']}`,
-              true, // note: For local testing set secure to false. But for production set it to true.
-              'None'
-            );
-
-            let startTime = Date.now();
-
-            const interval = setInterval(() => {
-              let currentTime = Date.now();
-              let elapsedTime = currentTime - startTime;
-
-              if (elapsedTime < 5000) {
-                this.redirectionTimeoutDisplay--;
-              } else {
-                this.redirectUponLogin();
-
-                clearInterval(interval);
-              }
-            }, 1000);
-          },
-          error: (err: any) => {
-            this.loginFormStatus = 'SubmissionError';
-          },
-        });
+    if (!this.loginForm.valid) {
     }
-  }
 
-  redirectUponLogin(): void {
-    this.router.navigate(['/']);
+    this.disableInteraction = true;
+
+    this.loginService
+      .login(this.loginForm.value.userName, this.loginForm.value.password)
+      .subscribe({
+        next: (response: LoginResponse) => {
+          this.disableInteraction = false;
+
+          try {
+            this.authService.postLoginProcessor(response.auth_token);
+
+            this.router.navigate(['/']).then(() => window.location.reload());
+          } catch (error) {
+            this.messageService.add({
+              key: 'tr',
+              severity: 'error',
+              summary: 'Error',
+              detail: 'Unable to login',
+            });
+          }
+        },
+        error: (error: any) => {
+          this.disableInteraction = false;
+
+          this.messageService.add({
+            key: 'tr',
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Unable to login',
+          });
+        },
+      });
   }
 }

@@ -16,7 +16,7 @@ export interface GroceryListUpdationPayload {
   total_price?: number;
 }
 
-export interface GroceryListItemCreationUpdationPayload {
+export interface GroceryListItemCreationPayload {
   name: string;
   description?: string;
   rate_measurement_quantity: number;
@@ -25,7 +25,17 @@ export interface GroceryListItemCreationUpdationPayload {
   quantity_measurement_unit: 'Unit' | 'Kilogram' | 'Gram';
   quantity: number;
   price: number;
-  grocery_list: number;
+}
+
+export interface GroceryListItemUpdationPayload {
+  name?: string;
+  description?: string;
+  rate_measurement_quantity?: number;
+  rate_measurement_unit?: 'Unit' | 'Kilogram' | 'Gram';
+  rate?: number;
+  quantity_measurement_unit?: 'Unit' | 'Kilogram' | 'Gram';
+  quantity?: number;
+  price?: number;
 }
 
 export interface UserGroceryListResponse {
@@ -61,6 +71,22 @@ export interface UserGroceryListItemResponse {
   providedIn: 'root',
 })
 export class GroceryListService {
+  generateUserGroceryListBasicFormObjectMetadata(
+    response: UserGroceryListResponse
+  ) {
+    return [
+      {
+        name: 'name',
+        label: 'Name',
+        value: response.name,
+        type: 'text',
+        validators: {
+          required: true,
+        },
+      },
+    ];
+  }
+
   token!: string;
 
   constructor(
@@ -152,26 +178,24 @@ export class GroceryListService {
     );
   }
 
-  exportUserGroceryListSummary(
-    id: string
-  ): Observable<UserGroceryListSummaryExportResponse> {
+  exportUserGroceryListSummary(id: string): Observable<Blob> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
 
-    return this.httpClient.post<UserGroceryListSummaryExportResponse>(
+    return this.httpClient.get(
       `${import.meta.env['NG_APP_API_BASE_URL']}/${
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/${id}/summary/`,
-      {},
       {
+        responseType: 'blob',
         headers: headers,
       }
     );
   }
 
   getUserGroceryListItems(
-    id: number
+    id: string
   ): Observable<UserGroceryListItemResponse[]> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
@@ -189,7 +213,7 @@ export class GroceryListService {
 
   createUserGroceryListItem(
     groceryListID: string,
-    groceryListItem: GroceryListItemCreationUpdationPayload
+    groceryListItem: GroceryListItemCreationPayload
   ): Observable<UserGroceryListItemResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
@@ -206,16 +230,16 @@ export class GroceryListService {
     );
   }
 
-  updatePutUserGroceryListItem(
+  updatePatchUserGroceryListItem(
     groceryListID: string,
     groceryListItemID: string,
-    groceryList: GroceryListItemCreationUpdationPayload
+    groceryList: GroceryListItemUpdationPayload
   ): Observable<UserGroceryListItemResponse> {
     const headers = new HttpHeaders({
       Authorization: `Token ${this.token}`,
     });
 
-    return this.httpClient.put<UserGroceryListItemResponse>(
+    return this.httpClient.patch<UserGroceryListItemResponse>(
       `${import.meta.env['NG_APP_API_BASE_URL']}/${
         import.meta.env['NG_APP_API_PREFIX']
       }/users/grocery-lists/${groceryListID}/items/${groceryListItemID}/`,
