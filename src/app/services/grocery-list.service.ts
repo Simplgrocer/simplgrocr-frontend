@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
-import { GroceryListItem, database } from '../database/database';
-import { Observable } from 'rxjs';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export interface GroceryListCreationPayload {
@@ -294,15 +293,5 @@ export class GroceryListService {
     }
 
     return price;
-  }
-
-  async getList() {
-    const list = await database.groceryLists.toArray();
-
-    return list;
-  }
-
-  async addListItems(groceryListItems: GroceryListItem[]) {
-    await database.groceryListItems.bulkAdd(groceryListItems);
   }
 }
