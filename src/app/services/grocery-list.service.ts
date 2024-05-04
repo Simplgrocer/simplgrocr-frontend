@@ -274,6 +274,16 @@ export class GroceryListService {
     quantityMeasurementUnit: 'Unit' | 'Kilogram' | 'Gram',
     quantity: number
   ): number {
+    if (
+      (rateMeasurementUnit === 'Unit' &&
+        (quantityMeasurementUnit === 'Kilogram' ||
+          quantityMeasurementUnit === 'Gram')) ||
+      (quantityMeasurementUnit === 'Unit' &&
+        (rateMeasurementUnit === 'Kilogram' || rateMeasurementUnit === 'Gram'))
+    ) {
+      throw new Error();
+    }
+
     let price: number = 0;
 
     if (rateMeasurementUnit === 'Unit') {
@@ -285,6 +295,12 @@ export class GroceryListService {
       if (rateMeasurementUnit === 'Kilogram') {
         if (quantityMeasurementUnit === 'Gram') {
           rateMeasurementQuantity = rateMeasurementQuantity * 1000;
+        }
+
+        price = (rate / rateMeasurementQuantity) * quantity;
+      } else if (rateMeasurementUnit === 'Gram') {
+        if (quantityMeasurementUnit == 'Kilogram') {
+          rateMeasurementQuantity = rateMeasurementQuantity / 1000;
         }
 
         price = (rate / rateMeasurementQuantity) * quantity;

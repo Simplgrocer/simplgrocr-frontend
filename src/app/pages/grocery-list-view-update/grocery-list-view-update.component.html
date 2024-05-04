@@ -252,7 +252,11 @@
           @for (control of getItemsArrayControls(); track control; let index =
           $index) {
           <div formGroupName="{{ index }}">
-            <p-accordionTab class="accordion-tab" header="{{ control.get('name')?.value }}" [attr.data-index]="index">
+            <p-accordionTab
+              class="accordion-tab"
+              header="{{ control.get('name')?.value }}"
+              [attr.data-index]="index"
+            >
               <div class="grid">
                 <div class="col">
                   <div class="text-right">
@@ -261,6 +265,9 @@
                       class="mr-2"
                       onIcon="pi pi-eye"
                       offIcon="pi pi-pencil"
+                      (ngModelChange)="
+                        onUserGroceryListItemFormEditButtonChange($event, index)
+                      "
                     ></p-toggleButton>
                     <p-button
                       icon="pi pi-times"

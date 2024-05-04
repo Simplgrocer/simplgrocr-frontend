@@ -171,7 +171,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
               response.map((item) => {
                 (this.userGroceryListForm!.get('items') as FormArray).push(
                   new FormGroup({
-                    name: new FormControl(item.name, [Validators.required]),
+                    name: new FormControl(item.name),
                     description: new FormControl(item.description),
                     rateMeasurementQuantity: new FormControl(
                       item.rate_measurement_quantity,
@@ -193,7 +193,9 @@ export class GroceryListViewUpdateComponent implements OnInit {
                     quantity: new FormControl(item.quantity, [
                       Validators.required,
                     ]),
-                    prevPrice: new FormControl(item.price, [Validators.required]),
+                    prevPrice: new FormControl(item.price, [
+                      Validators.required,
+                    ]),
                     price: new FormControl(item.price, [Validators.required]),
                     edit: new FormControl(false),
                     updatePreviousState: new FormControl(false),
@@ -236,6 +238,26 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
         this.resetUserGroceryListBasicForm = true;
       }
+    }
+  }
+
+  onUserGroceryListItemFormEditButtonChange(
+    value: boolean,
+    index: number
+  ): void {
+    console.log(this.getItemsArrayControls()[index].get('updatePreviousState')?.value)
+    if (!value) {
+      this.getItemsArrayControls()[index].patchValue({
+        updateCurrentState: false,
+        resetCurrentState: false,
+      });
+    } else if (
+      this.getItemsArrayControls()[index].get('updatePreviousState')?.value === true
+    ) {
+      this.getItemsArrayControls()[index].patchValue({
+        updateCurrentState: true,
+        resetCurrentState: true,
+      });
     }
   }
 
@@ -431,7 +453,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
 
           (this.userGroceryListForm!.get('items') as FormArray).push(
             new FormGroup({
-              name: new FormControl(response.name, [Validators.required]),
+              name: new FormControl(response.name),
               description: new FormControl(response.description),
               rateMeasurementQuantity: new FormControl(
                 response.rate_measurement_quantity,
@@ -568,38 +590,53 @@ export class GroceryListViewUpdateComponent implements OnInit {
           quantityMeasurementUnitChanged ||
           quantityChanged);
 
-      const updatedPrice = willPriceChange
-        ? this.groceryListService.getItemPrice(
+      console.log(`rateMeasurementQuantityControl.value`);
+      console.log(rateMeasurementQuantityControl.value);
+
+      let updatedPrice = null;
+
+      if (willPriceChange) {
+        try {
+          updatedPrice = this.groceryListService.getItemPrice(
             rateMeasurementQuantityControl.value,
             rateMeasurementUnitControl.value.value,
             rateControl.value,
             quantityMeasurementUnitControl.value.value,
             quantityControl.value
-          )
-        : null;
+          );
+        } catch (error) {}
+      }
 
       let updatedGroceryListItemFormValues: {
-        updatePrevState: boolean;
+        updatePreviousState: boolean;
         updateCurrentState: boolean;
         resetCurrentState: boolean;
-        prevPrice?: number,
+        prevPrice?: number;
         price?: number;
       } = {
-        updatePrevState: updateState,
+        updatePreviousState: updateState,
         updateCurrentState: updateState,
         resetCurrentState: updateState,
       };
 
-      if (updatedPrice !== null) {
+      console.log(updatedGroceryListItemFormValues);
+
+      if (updatedPrice !== null && updatedPrice !== undefined) {
+        console.log(`${this.userGroceryListForm?.controls['totalPrice'].value} +
+        ${updatedPrice} -
+        ${prevPriceControl.value}`);
+
+        const totalPrice =
+          +this.userGroceryListForm?.controls['totalPrice'].value +
+          updatedPrice -
+          +prevPriceControl.value;
+
         this.userGroceryListForm?.patchValue({
-          totalPrice:
-            this.userGroceryListForm?.controls['totalPrice'].value +
-            updatedPrice -
-            prevPriceControl.value,
+          totalPrice: totalPrice,
         });
-        
-        updatedGroceryListItemFormValues.prevPrice = updatedPrice;
-        updatedGroceryListItemFormValues.price = updatedPrice;
+
+        updatedGroceryListItemFormValues.prevPrice = updatedPrice!;
+        updatedGroceryListItemFormValues.price = updatedPrice!;
       }
 
       this.getItemsArrayControls()[index].patchValue(
@@ -635,7 +672,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
         ),
         quantity: this.userGroceryListItems[index].quantity,
         price: this.userGroceryListItems[index].price,
-        updatePrevState: false,
+        updatePreviousState: false,
         updateCurrentState: false,
         resetCurrentState: false,
       });
@@ -717,6 +754,12 @@ export class GroceryListViewUpdateComponent implements OnInit {
         .subscribe({
           next: (response: UserGroceryListItemResponse) => {
             this.userGroceryListItems![index] = response;
+
+            this.getItemsArrayControls()[index].patchValue({
+              updatePreviousState: false,
+              updateCurrentState: false,
+              resetCurrentState: false,
+            });
 
             this.disableInteraction = false;
           },
