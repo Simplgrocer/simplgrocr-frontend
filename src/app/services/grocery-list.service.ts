@@ -307,6 +307,10 @@ export class GroceryListService {
       }
     }
 
+    if (Number.isNaN(price)) {
+      return 0;
+    }
+
     return price;
   }
 }

@@ -245,14 +245,14 @@ export class GroceryListViewUpdateComponent implements OnInit {
     value: boolean,
     index: number
   ): void {
-    console.log(this.getItemsArrayControls()[index].get('updatePreviousState')?.value)
     if (!value) {
       this.getItemsArrayControls()[index].patchValue({
         updateCurrentState: false,
         resetCurrentState: false,
       });
     } else if (
-      this.getItemsArrayControls()[index].get('updatePreviousState')?.value === true
+      this.getItemsArrayControls()[index].get('updatePreviousState')?.value ===
+      true
     ) {
       this.getItemsArrayControls()[index].patchValue({
         updateCurrentState: true,
@@ -514,7 +514,6 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   onUserGroceryListItemPropChange(index: number): void {
-    console.log(true);
     if (this.userGroceryListItems) {
       const nameControl = this.getItemsArrayControls()[index].get('name')!;
       const descriptionControl =
@@ -590,9 +589,6 @@ export class GroceryListViewUpdateComponent implements OnInit {
           quantityMeasurementUnitChanged ||
           quantityChanged);
 
-      console.log(`rateMeasurementQuantityControl.value`);
-      console.log(rateMeasurementQuantityControl.value);
-
       let updatedPrice = null;
 
       if (willPriceChange) {
@@ -619,13 +615,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
         resetCurrentState: updateState,
       };
 
-      console.log(updatedGroceryListItemFormValues);
-
       if (updatedPrice !== null && updatedPrice !== undefined) {
-        console.log(`${this.userGroceryListForm?.controls['totalPrice'].value} +
-        ${updatedPrice} -
-        ${prevPriceControl.value}`);
-
         const totalPrice =
           +this.userGroceryListForm?.controls['totalPrice'].value +
           updatedPrice -
@@ -700,6 +690,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
       ].get('quantityMeasurementUnit')!;
       const quantityControl =
         this.getItemsArrayControls()[index].get('quantity')!;
+      const priceControl = this.getItemsArrayControls()[index].get('price')!;
 
       const nameChanged =
         nameControl.value !== this.userGroceryListItems[index].name;
@@ -719,6 +710,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
         this.userGroceryListItems[index].quantity_measurement_unit;
       const quantityChanged =
         quantityControl.value !== this.userGroceryListItems[index].quantity;
+      const priceChanged =
+        priceControl.value !== this.userGroceryListItems[index].price;
 
       const userGroceryListItemPayload = {
         ...(nameChanged ? { name: nameControl.value } : {}),
@@ -743,6 +736,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
             }
           : {}),
         ...(quantityChanged ? { quantity: quantityControl.value } : {}),
+        ...(priceChanged ? { price: priceControl.value } : {}),
       };
 
       this.groceryListService
