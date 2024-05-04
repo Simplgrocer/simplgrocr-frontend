@@ -18,6 +18,7 @@
 
   <h1>Your lists</h1>
 
+  @if (groceryLists.length > 0) {
   @for (groceryList of groceryLists; track groceryList.id) {
   <p-card header="{{ groceryList.name }}">
     <p class="m-0">
@@ -30,5 +31,11 @@
 
   <br />
   }
+} @else {
+  <p-messages [(value)]="itemsNotFoundBanner"
+  [closable]="false"
+  [enableService]="false">
+</p-messages>
+}
 </div>
 }
