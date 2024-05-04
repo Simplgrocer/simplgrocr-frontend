@@ -326,7 +326,7 @@
                     optionLabel="value"
                     placeholder="Rate Measurement Unit"
                     [readonly]="!control.get('edit')?.value"
-                    (change)="onUserGroceryListItemPropChange(index)"
+                    (onChange)="onUserGroceryListItemPropChange(index)"
                   ></p-dropdown>
                   <label for="rate_measurement_unit"
                     >Rate Measurement Unit</label
@@ -359,7 +359,7 @@
                     optionLabel="value"
                     placeholder="Quantity Measurement Unit"
                     [readonly]="!control.get('edit')?.value"
-                    (change)="onUserGroceryListItemPropChange(index)"
+                    (onChange)="onUserGroceryListItemPropChange(index)"
                   ></p-dropdown>
                   <label for="quantity_measurement_unit"
                     >Quantity Measurement Unit</label

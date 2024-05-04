@@ -193,6 +193,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
                     quantity: new FormControl(item.quantity, [
                       Validators.required,
                     ]),
+                    prevPrice: new FormControl(item.price, [Validators.required]),
                     price: new FormControl(item.price, [Validators.required]),
                     edit: new FormControl(false),
                     updatePreviousState: new FormControl(false),
@@ -452,6 +453,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
               quantity: new FormControl(response.quantity, [
                 Validators.required,
               ]),
+              prevPrice: new FormControl(response.price, [Validators.required]),
               price: new FormControl(response.price, [Validators.required]),
               edit: new FormControl(false),
               updatePreviousState: new FormControl(false),
@@ -490,6 +492,7 @@ export class GroceryListViewUpdateComponent implements OnInit {
   }
 
   onUserGroceryListItemPropChange(index: number): void {
+    console.log(true);
     if (this.userGroceryListItems) {
       const nameControl = this.getItemsArrayControls()[index].get('name')!;
       const descriptionControl =
@@ -506,6 +509,8 @@ export class GroceryListViewUpdateComponent implements OnInit {
       ].get('quantityMeasurementUnit')!;
       const quantityControl =
         this.getItemsArrayControls()[index].get('quantity')!;
+      const prevPriceControl =
+        this.getItemsArrayControls()[index].get('prevPrice')!;
 
       const nameChanged =
         nameControl.value !== this.userGroceryListItems[index].name;
@@ -573,21 +578,33 @@ export class GroceryListViewUpdateComponent implements OnInit {
           )
         : null;
 
-      this.getItemsArrayControls()[index].patchValue({
+      let updatedGroceryListItemFormValues: {
+        updatePrevState: boolean;
+        updateCurrentState: boolean;
+        resetCurrentState: boolean;
+        prevPrice?: number,
+        price?: number;
+      } = {
         updatePrevState: updateState,
         updateCurrentState: updateState,
         resetCurrentState: updateState,
-        ...(updatedPrice ? { price: updatedPrice } : {}),
-      });
+      };
 
-      if (updatedPrice) {
+      if (updatedPrice !== null) {
         this.userGroceryListForm?.patchValue({
           totalPrice:
             this.userGroceryListForm?.controls['totalPrice'].value +
             updatedPrice -
-            this.userGroceryListItems[index].price,
+            prevPriceControl.value,
         });
+        
+        updatedGroceryListItemFormValues.prevPrice = updatedPrice;
+        updatedGroceryListItemFormValues.price = updatedPrice;
       }
+
+      this.getItemsArrayControls()[index].patchValue(
+        updatedGroceryListItemFormValues
+      );
     }
   }
 

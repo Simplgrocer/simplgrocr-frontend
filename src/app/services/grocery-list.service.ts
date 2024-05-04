@@ -282,14 +282,13 @@ export class GroceryListService {
           ? rate * quantity
           : Number(((rate / rateMeasurementQuantity) * quantity).toFixed(2));
     } else {
-      const conversionFactor =
-        (rateMeasurementUnit === 'Kilogram' &&
-          quantityMeasurementUnit === 'Kilogram') ||
-        (rateMeasurementUnit === 'Gram' && quantityMeasurementUnit === 'Gram')
-          ? 1
-          : 1000;
+      if (rateMeasurementUnit === 'Kilogram') {
+        if (quantityMeasurementUnit === 'Gram') {
+          rateMeasurementQuantity = rateMeasurementQuantity * 1000;
+        }
 
-      price = rate * (quantity / conversionFactor);
+        price = (rate / rateMeasurementQuantity) * quantity;
+      }
     }
 
     return price;
